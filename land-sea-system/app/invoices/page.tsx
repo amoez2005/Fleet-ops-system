@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { requireRoles } from "@/lib/auth";
+import { FINANCIAL_ROLES } from "@/lib/roles";
 import InvoicesClient from "./InvoicesClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function InvoicesPage() {
-  await requireSession();
+  await requireRoles(FINANCIAL_ROLES);
 
   const [invoices, clients, assignments] = await Promise.all([
     db.invoice.findMany({

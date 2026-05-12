@@ -1,11 +1,13 @@
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { canManageOperations } from "@/lib/roles";
 import ClientsClient from "./ClientsClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClientsPage() {
-  await requireSession();
+  const session = await requireSession();
+  const canManage = canManageOperations(session.role);
 
   const clients = await db.client.findMany({
     orderBy: {
@@ -37,5 +39,5 @@ export default async function ClientsPage() {
     invoiceCount: client._count.invoices,
   }));
 
-  return <ClientsClient clients={safeClients} />;
+  return <ClientsClient clients={safeClients} canManage={canManage} />;
 }

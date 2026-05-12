@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { requireRoles } from "@/lib/auth";
+import { SALARY_ROLES } from "@/lib/roles";
 import SalariesClient from "./SalariesClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function SalariesPage() {
-  await requireSession();
+  await requireRoles(SALARY_ROLES);
 
   const salaryRecords = await db.salaryRecord.findMany({
     orderBy: [

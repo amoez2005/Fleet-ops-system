@@ -1,11 +1,13 @@
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { canManageOperations } from "@/lib/roles";
 import AssignmentsClient from "./AssignmentsClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AssignmentsPage() {
-  await requireSession();
+  const session = await requireSession();
+  const canManage = canManageOperations(session.role);
 
   const [assignments, clients, assets] = await Promise.all([
     db.assignment.findMany({
@@ -82,6 +84,7 @@ export default async function AssignmentsPage() {
       assignments={safeAssignments}
       clients={safeClients}
       assets={safeAssets}
+      canManage={canManage}
     />
   );
 }

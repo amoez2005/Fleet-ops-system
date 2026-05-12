@@ -3,9 +3,17 @@ import { jsPDF } from "jspdf";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
 import { formatUtcDateTime } from "@/lib/format";
+import { canAccessFinancials } from "@/lib/roles";
 
 export async function GET(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canAccessFinancials(session.role)) {
+    return NextResponse.json(
+      { error: "You do not have permission to access revenue PDFs." },
+      { status: 403 }
+    );
+  }
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");

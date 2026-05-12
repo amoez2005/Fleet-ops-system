@@ -1,11 +1,13 @@
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { canManageOperations } from "@/lib/roles";
 import AssetsClient from "./AssetsClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AssetsPage() {
-  await requireSession();
+  const session = await requireSession();
+  const canManage = canManageOperations(session.role);
 
   const [assets, categories] = await Promise.all([
     db.asset.findMany({
@@ -53,5 +55,11 @@ export default async function AssetsPage() {
     name: category.name,
   }));
 
-  return <AssetsClient assets={safeAssets} categories={safeCategories} />;
+  return (
+    <AssetsClient
+      assets={safeAssets}
+      categories={safeCategories}
+      canManage={canManage}
+    />
+  );
 }

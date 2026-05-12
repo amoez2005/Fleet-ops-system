@@ -1,11 +1,13 @@
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { canManageOperations } from "@/lib/roles";
 import CategoriesClient from "./CategoriesClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
-  await requireSession();
+  const session = await requireSession();
+  const canManage = canManageOperations(session.role);
 
   const categories = await db.category.findMany({
     orderBy: { name: "asc" },
@@ -29,5 +31,5 @@ export default async function CategoriesPage() {
     createdAt: category.createdAt.toISOString(),
   }));
 
-  return <CategoriesClient categories={safeCategories} />;
+  return <CategoriesClient categories={safeCategories} canManage={canManage} />;
 }

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { requireRoles } from "@/lib/auth";
 import { formatUtcDateTime } from "@/lib/format";
 import PrintButton from "@/components/PrintButton";
+import { FINANCIAL_ROLES } from "@/lib/roles";
 import { palette } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export default async function InvoicePrintPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireSession();
+  await requireRoles(FINANCIAL_ROLES);
 
   const { id } = await params;
 

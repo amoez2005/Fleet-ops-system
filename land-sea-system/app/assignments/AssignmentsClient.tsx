@@ -73,10 +73,12 @@ export default function AssignmentsClient({
   assignments,
   clients,
   assets,
+  canManage,
 }: {
   assignments: AssignmentItem[];
   clients: ClientOption[];
   assets: AssetOption[];
+  canManage: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -283,257 +285,270 @@ export default function AssignmentsClient({
       <div className="landsea-editor-layout landsea-editor-layout--wide">
         <section ref={editorPanelRef} className="landsea-editor-panel" style={panelStyle}>
           <h2 style={sectionTitleStyle}>
-            {editingId ? "Edit Assignment" : "Add Assignment"}
+            {canManage
+              ? editingId
+                ? "Edit Assignment"
+                : "Add Assignment"
+              : "Assignment Access"}
           </h2>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Title
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Optional assignment title"
-                style={inputStyle}
-              />
-            </div>
+          {canManage ? (
+            <>
+              <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Optional assignment title"
+                    style={inputStyle}
+                  />
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Client
-              </label>
-              <select
-                value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
-                required
-                style={inputStyle}
-              >
-                {clients.map((client) => (
-                  <option
-                    key={client.id}
-                    value={client.id}
-                    style={optionStyle}
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Client
+                  </label>
+                  <select
+                    value={clientId}
+                    onChange={(e) => setClientId(e.target.value)}
+                    required
+                    style={inputStyle}
                   >
-                    {client.clientCode} - {client.companyName}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="landsea-form-grid-2">
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Start Date (UTC)
-                </label>
-                <input
-                  type="datetime-local"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                  style={inputStyle}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  End Date (UTC)
-                </label>
-                <input
-                  type="datetime-local"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Location
-              </label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Optional"
-                style={inputStyle}
-              />
-            </div>
-
-            <div className="landsea-form-grid-3">
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Rate Type
-                </label>
-                <input
-                  type="text"
-                  value={rateType}
-                  onChange={(e) => setRateType(e.target.value)}
-                  placeholder="Optional"
-                  style={inputStyle}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Rate Value
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={rateValue}
-                  onChange={(e) => setRateValue(e.target.value)}
-                  placeholder="Optional"
-                  style={inputStyle}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Status
-                </label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  style={inputStyle}
-                >
-                  {statuses.map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                      style={optionStyle}
-                    >
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Linked Assets
-              </label>
-              <div
-                style={{
-                  display: "block",
-                  marginBottom: "12px",
-                }}
-              >
-                <select
-                  value={assetToAddId}
-                  onChange={(e) => handleSelectAsset(e.target.value)}
-                  style={inputStyle}
-                >
-                  <option value="" style={optionStyle}>
-                    {availableAssets.length === 0
-                      ? "No available assets to add"
-                      : "Select available asset"}
-                  </option>
-                  {availableAssets.map((asset) => (
-                    <option
-                      key={asset.id}
-                      value={asset.id}
-                      style={optionStyle}
-                    >
-                      {asset.assetCode} ({asset.categoryName}) - {asset.operationalStatus}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={selectionBoxStyle}>
-                {selectedAssets.length === 0 ? (
-                  <p style={{ margin: 0, color: palette.mutedText }}>
-                    No assets selected.
-                  </p>
-                ) : (
-                  selectedAssets.map((asset) => (
-                    <div
-                      key={asset.id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "8px 0",
-                        borderBottom: `1px solid ${palette.border}`,
-                      }}
-                    >
-                      <span>
-                        {asset.assetCode} ({asset.categoryName}) - {asset.operationalStatus}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveAsset(asset.id)}
-                        style={miniButtonStyle}
+                    {clients.map((client) => (
+                      <option
+                        key={client.id}
+                        value={client.id}
+                        style={optionStyle}
                       >
-                        Remove
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+                        {client.clientCode} - {client.companyName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Job Notes
-              </label>
-              <textarea
-                value={jobNotes}
-                onChange={(e) => setJobNotes(e.target.value)}
-                rows={4}
-                placeholder="Optional notes"
-                style={{
-                  ...inputStyle,
-                  resize: "vertical",
-                }}
-              />
-            </div>
+                <div className="landsea-form-grid-2">
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Start Date (UTC)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
+                  </div>
 
-            {error ? <div style={errorStyle}>{error}</div> : null}
-            {success ? <div style={successStyle}>{success}</div> : null}
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      End Date (UTC)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
 
-            <div className="landsea-form-grid-actions">
-              <button
-                type="submit"
-                disabled={submitting || clients.length === 0}
-                style={{
-                  ...primaryButtonStyle,
-                  opacity: submitting || clients.length === 0 ? 0.8 : 1,
-                }}
-              >
-                {submitting
-                  ? editingId
-                    ? "Updating..."
-                    : "Creating..."
-                  : editingId
-                    ? "Update Assignment"
-                    : "Create Assignment"}
-              </button>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Optional"
+                    style={inputStyle}
+                  />
+                </div>
 
-              {editingId ? (
-                <button
-                  type="button"
-                  onClick={cancelEdit}
-                  style={secondaryButtonStyle}
-                >
-                  Cancel Edit
-                </button>
+                <div className="landsea-form-grid-3">
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Rate Type
+                    </label>
+                    <input
+                      type="text"
+                      value={rateType}
+                      onChange={(e) => setRateType(e.target.value)}
+                      placeholder="Optional"
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Rate Value
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={rateValue}
+                      onChange={(e) => setRateValue(e.target.value)}
+                      placeholder="Optional"
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Status
+                    </label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      style={inputStyle}
+                    >
+                      {statuses.map((item) => (
+                        <option
+                          key={item}
+                          value={item}
+                          style={optionStyle}
+                        >
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Linked Assets
+                  </label>
+                  <div
+                    style={{
+                      display: "block",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <select
+                      value={assetToAddId}
+                      onChange={(e) => handleSelectAsset(e.target.value)}
+                      style={inputStyle}
+                    >
+                      <option value="" style={optionStyle}>
+                        {availableAssets.length === 0
+                          ? "No available assets to add"
+                          : "Select available asset"}
+                      </option>
+                      {availableAssets.map((asset) => (
+                        <option
+                          key={asset.id}
+                          value={asset.id}
+                          style={optionStyle}
+                        >
+                          {asset.assetCode} ({asset.categoryName}) - {asset.operationalStatus}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={selectionBoxStyle}>
+                    {selectedAssets.length === 0 ? (
+                      <p style={{ margin: 0, color: palette.mutedText }}>
+                        No assets selected.
+                      </p>
+                    ) : (
+                      selectedAssets.map((asset) => (
+                        <div
+                          key={asset.id}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "12px",
+                            padding: "8px 0",
+                            borderBottom: `1px solid ${palette.border}`,
+                          }}
+                        >
+                          <span>
+                            {asset.assetCode} ({asset.categoryName}) - {asset.operationalStatus}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAsset(asset.id)}
+                            style={miniButtonStyle}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Job Notes
+                  </label>
+                  <textarea
+                    value={jobNotes}
+                    onChange={(e) => setJobNotes(e.target.value)}
+                    rows={4}
+                    placeholder="Optional notes"
+                    style={{
+                      ...inputStyle,
+                      resize: "vertical",
+                    }}
+                  />
+                </div>
+
+                {error ? <div style={errorStyle}>{error}</div> : null}
+                {success ? <div style={successStyle}>{success}</div> : null}
+
+                <div className="landsea-form-grid-actions">
+                  <button
+                    type="submit"
+                    disabled={submitting || clients.length === 0}
+                    style={{
+                      ...primaryButtonStyle,
+                      opacity: submitting || clients.length === 0 ? 0.8 : 1,
+                    }}
+                  >
+                    {submitting
+                      ? editingId
+                        ? "Updating..."
+                        : "Creating..."
+                      : editingId
+                        ? "Update Assignment"
+                        : "Create Assignment"}
+                  </button>
+
+                  {editingId ? (
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      style={secondaryButtonStyle}
+                    >
+                      Cancel Edit
+                    </button>
+                  ) : null}
+                </div>
+              </form>
+
+              {clients.length === 0 ? (
+                <p style={warningTextStyle}>
+                  You need at least one client before adding assignments.
+                </p>
               ) : null}
+            </>
+          ) : (
+            <div style={noteStyle}>
+              Your role can review assignments, but only operations managers and
+              super admins can create, edit, or delete them.
             </div>
-          </form>
-
-          {clients.length === 0 ? (
-            <p style={warningTextStyle}>
-              You need at least one client before adding assignments.
-            </p>
-          ) : null}
+          )}
         </section>
 
         <section className="landsea-list-panel" style={panelStyle}>
@@ -639,64 +654,68 @@ export default function AssignmentsClient({
                         </div>
                       </td>
                       <td style={tdStyle}>
-                        <div style={actionsWrapStyle}>
-                          <button
-                            onClick={() => startEdit(assignment)}
-                            disabled={submitting || deletingId === assignment.id}
-                            style={{
-                              ...miniButtonStyle,
-                              background:
-                                editingId === assignment.id
-                                  ? palette.softSurfaceAlt
-                                  : miniButtonStyle.background,
-                              opacity:
-                                submitting || deletingId === assignment.id ? 0.7 : 1,
-                            }}
-                          >
-                            {editingId === assignment.id ? "Editing..." : "Edit"}
-                          </button>
+                        {canManage ? (
+                          <div style={actionsWrapStyle}>
+                            <button
+                              onClick={() => startEdit(assignment)}
+                              disabled={submitting || deletingId === assignment.id}
+                              style={{
+                                ...miniButtonStyle,
+                                background:
+                                  editingId === assignment.id
+                                    ? palette.softSurfaceAlt
+                                    : miniButtonStyle.background,
+                                opacity:
+                                  submitting || deletingId === assignment.id ? 0.7 : 1,
+                              }}
+                            >
+                              {editingId === assignment.id ? "Editing..." : "Edit"}
+                            </button>
 
-                          <button
-                            onClick={() => handleDelete(assignment.id)}
-                            disabled={
-                              deletingId === assignment.id ||
-                              assignment.revenueCount > 0 ||
-                              assignment.invoiceLinkCount > 0
-                            }
-                            style={{
-                              ...dangerButtonStyle,
-                              background:
+                            <button
+                              onClick={() => handleDelete(assignment.id)}
+                              disabled={
+                                deletingId === assignment.id ||
                                 assignment.revenueCount > 0 ||
                                 assignment.invoiceLinkCount > 0
-                                  ? palette.softSurfaceAlt
-                                  : dangerButtonStyle.background,
-                              border:
+                              }
+                              style={{
+                                ...dangerButtonStyle,
+                                background:
+                                  assignment.revenueCount > 0 ||
+                                  assignment.invoiceLinkCount > 0
+                                    ? palette.softSurfaceAlt
+                                    : dangerButtonStyle.background,
+                                border:
+                                  assignment.revenueCount > 0 ||
+                                  assignment.invoiceLinkCount > 0
+                                    ? `1px solid ${palette.border}`
+                                    : dangerButtonStyle.border,
+                                color:
+                                  assignment.revenueCount > 0 ||
+                                  assignment.invoiceLinkCount > 0
+                                    ? palette.mutedText
+                                    : dangerButtonStyle.color,
+                                cursor:
+                                  assignment.revenueCount > 0 ||
+                                  assignment.invoiceLinkCount > 0
+                                    ? "not-allowed"
+                                    : "pointer",
+                                opacity: deletingId === assignment.id ? 0.7 : 1,
+                              }}
+                              title={
                                 assignment.revenueCount > 0 ||
                                 assignment.invoiceLinkCount > 0
-                                  ? `1px solid ${palette.border}`
-                                  : dangerButtonStyle.border,
-                              color:
-                                assignment.revenueCount > 0 ||
-                                assignment.invoiceLinkCount > 0
-                                  ? palette.mutedText
-                                  : dangerButtonStyle.color,
-                              cursor:
-                                assignment.revenueCount > 0 ||
-                                assignment.invoiceLinkCount > 0
-                                  ? "not-allowed"
-                                  : "pointer",
-                              opacity: deletingId === assignment.id ? 0.7 : 1,
-                            }}
-                            title={
-                              assignment.revenueCount > 0 ||
-                              assignment.invoiceLinkCount > 0
-                                ? "Cannot delete assignment with linked revenue or invoices."
-                                : "Delete assignment"
-                            }
-                          >
-                            {deletingId === assignment.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
+                                  ? "Cannot delete assignment with linked revenue or invoices."
+                                  : "Delete assignment"
+                              }
+                            >
+                              {deletingId === assignment.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={warningTextStyle}>View only</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -706,15 +725,19 @@ export default function AssignmentsClient({
           </div>
 
           <p style={noteStyle}>
-            Note: Assignments can be edited at any time. Delete stays blocked when revenue or invoice links are already attached.
+            {canManage
+              ? "Note: Assignments can be edited at any time. Delete stays blocked when revenue or invoice links are already attached."
+              : "You have read-only access to assignment records."}
           </p>
         </section>
       </div>
 
-      <EditorJumpButton
-        targetRef={editorPanelRef}
-        label="Jump to assignment form"
-      />
+      {canManage ? (
+        <EditorJumpButton
+          targetRef={editorPanelRef}
+          label="Jump to assignment form"
+        />
+      ) : null}
     </main>
   );
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { canManageOperations } from "@/lib/roles";
 
 const maintenanceInclude = {
   asset: {
@@ -10,6 +11,11 @@ const maintenanceInclude = {
     },
   },
 };
+const forbiddenResponse = () =>
+  NextResponse.json(
+    { error: "You do not have permission to modify maintenance records." },
+    { status: 403 }
+  );
 
 export async function GET(req: Request) {
   await requireSession();
@@ -63,7 +69,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canManageOperations(session.role)) {
+    return forbiddenResponse();
+  }
 
   try {
     const body = await req.json();
@@ -99,7 +109,11 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canManageOperations(session.role)) {
+    return forbiddenResponse();
+  }
 
   try {
     const { searchParams } = new URL(req.url);
@@ -161,7 +175,11 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canManageOperations(session.role)) {
+    return forbiddenResponse();
+  }
 
   try {
     const { searchParams } = new URL(req.url);

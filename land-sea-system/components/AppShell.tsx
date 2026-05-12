@@ -19,34 +19,98 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
+import {
+  type AppRole,
+  canAccessFinancials,
+  canAccessSalaries,
+  canAccessUsers,
+} from "@/lib/roles";
 import { palette } from "@/lib/ui";
 
 type AppShellProps = {
   children: ReactNode;
+  session?: {
+    name: string;
+    role: AppRole;
+  } | null;
 };
 
 type NavigationItem = {
   label: string;
   href: string;
   icon: LucideIcon;
+  isVisible: (role: string | null | undefined) => boolean;
 };
 
 const navigationItems: NavigationItem[] = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Users", href: "/users", icon: Users },
-  { label: "Categories", href: "/categories", icon: FolderKanban },
-  { label: "Assets", href: "/assets", icon: Truck },
-  { label: "Clients", href: "/clients", icon: UserSquare2 },
-  { label: "Assignments", href: "/assignments", icon: BriefcaseBusiness },
-  { label: "Revenues", href: "/revenues", icon: CircleDollarSign },
-  { label: "Salaries", href: "/salaries", icon: Users },
-  { label: "Maintenance", href: "/maintenance", icon: Wrench },
-  { label: "Invoices", href: "/invoices", icon: FileText },
+  {
+    label: "Dashboard",
+    href: "/",
+    icon: LayoutDashboard,
+    isVisible: () => true,
+  },
+  {
+    label: "Users",
+    href: "/users",
+    icon: Users,
+    isVisible: (role) => canAccessUsers(role),
+  },
+  {
+    label: "Categories",
+    href: "/categories",
+    icon: FolderKanban,
+    isVisible: () => true,
+  },
+  {
+    label: "Assets",
+    href: "/assets",
+    icon: Truck,
+    isVisible: () => true,
+  },
+  {
+    label: "Clients",
+    href: "/clients",
+    icon: UserSquare2,
+    isVisible: () => true,
+  },
+  {
+    label: "Assignments",
+    href: "/assignments",
+    icon: BriefcaseBusiness,
+    isVisible: () => true,
+  },
+  {
+    label: "Revenues",
+    href: "/revenues",
+    icon: CircleDollarSign,
+    isVisible: (role) => canAccessFinancials(role),
+  },
+  {
+    label: "Salaries",
+    href: "/salaries",
+    icon: Users,
+    isVisible: (role) => canAccessSalaries(role),
+  },
+  {
+    label: "Maintenance",
+    href: "/maintenance",
+    icon: Wrench,
+    isVisible: () => true,
+  },
+  {
+    label: "Invoices",
+    href: "/invoices",
+    icon: FileText,
+    isVisible: (role) => canAccessFinancials(role),
+  },
 ];
 
-export default function AppShell({ children }: AppShellProps) {
+export default function AppShell({ children, session }: AppShellProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const visibleNavigationItems = navigationItems.filter((item) =>
+    item.isVisible(session?.role)
+  );
 
   if (!pathname || shouldHideSidebar(pathname)) {
     return <>{children}</>;
@@ -424,7 +488,7 @@ export default function AppShell({ children }: AppShellProps) {
           </div>
 
           <nav className="landsea-shell-nav">
-            {navigationItems.map((item) => {
+            {visibleNavigationItems.map((item) => {
               const Icon = item.icon;
               const active = isActivePath(pathname, item.href);
 

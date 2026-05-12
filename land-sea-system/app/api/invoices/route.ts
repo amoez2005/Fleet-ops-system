@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { InvoiceStatus, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { canAccessFinancials } from "@/lib/roles";
 
 const validStatuses = new Set(Object.values(InvoiceStatus));
 
@@ -13,9 +14,18 @@ const invoiceInclude = {
     },
   },
 };
+const forbiddenResponse = () =>
+  NextResponse.json(
+    { error: "You do not have permission to access invoices." },
+    { status: 403 }
+  );
 
 export async function GET(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canAccessFinancials(session.role)) {
+    return forbiddenResponse();
+  }
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
@@ -51,7 +61,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canAccessFinancials(session.role)) {
+    return forbiddenResponse();
+  }
 
   try {
     const body = await req.json();
@@ -95,7 +109,11 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canAccessFinancials(session.role)) {
+    return forbiddenResponse();
+  }
 
   try {
     const { searchParams } = new URL(req.url);
@@ -163,7 +181,11 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  await requireSession();
+  const session = await requireSession();
+
+  if (!canAccessFinancials(session.role)) {
+    return forbiddenResponse();
+  }
 
   try {
     const { searchParams } = new URL(req.url);

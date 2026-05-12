@@ -1,11 +1,13 @@
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { canManageOperations } from "@/lib/roles";
 import MaintenanceClient from "./MaintenanceClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function MaintenancePage() {
-  await requireSession();
+  const session = await requireSession();
+  const canManage = canManageOperations(session.role);
 
   const [maintenanceRecords, assets] = await Promise.all([
     db.maintenanceRecord.findMany({
@@ -69,6 +71,7 @@ export default async function MaintenancePage() {
     <MaintenanceClient
       maintenanceRecords={safeMaintenanceRecords}
       assets={safeAssets}
+      canManage={canManage}
     />
   );
 }

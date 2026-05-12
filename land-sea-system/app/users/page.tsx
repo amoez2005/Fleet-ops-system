@@ -1,7 +1,8 @@
 import { db } from "../../lib/db";
-import { requireSession } from "../../lib/auth";
+import { requireRoles } from "../../lib/auth";
 import DashboardHomeLink from "@/components/DashboardHomeLink";
 import { formatUtcDateTime } from "@/lib/format";
+import { USER_ADMIN_ROLES } from "@/lib/roles";
 import {
   getStatusBadgeStyle,
   noteStyle,
@@ -20,7 +21,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function UsersPage() {
-  await requireSession();
+  await requireRoles(USER_ADMIN_ROLES);
 
   const users = await db.user.findMany({
     orderBy: { createdAt: "desc" },

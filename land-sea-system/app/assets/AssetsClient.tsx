@@ -62,9 +62,11 @@ const statuses = ["AVAILABLE", "ACTIVE", "MAINTENANCE", "INACTIVE"];
 export default function AssetsClient({
   assets,
   categories,
+  canManage,
 }: {
   assets: AssetItem[];
   categories: CategoryItem[];
+  canManage: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -273,190 +275,199 @@ export default function AssetsClient({
       <div className="landsea-editor-layout">
         <section ref={editorPanelRef} className="landsea-editor-panel" style={panelStyle}>
           <h2 style={sectionTitleStyle}>
-            {editingId ? "Edit Asset" : "Add Asset"}
+            {canManage ? (editingId ? "Edit Asset" : "Add Asset") : "Asset Access"}
           </h2>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Asset Code
-              </label>
-              <input
-                type="text"
-                value={assetCode}
-                onChange={(e) => setAssetCode(e.target.value)}
-                required
-                placeholder="e.g. TR-002"
-                style={inputStyle}
-              />
-            </div>
+          {canManage ? (
+            <>
+              <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Asset Code
+                  </label>
+                  <input
+                    type="text"
+                    value={assetCode}
+                    onChange={(e) => setAssetCode(e.target.value)}
+                    required
+                    placeholder="e.g. TR-002"
+                    style={inputStyle}
+                  />
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Category
-              </label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                required
-                style={inputStyle}
-              >
-                {categories.map((category) => (
-                  <option
-                    key={category.id}
-                    value={category.id}
-                    style={optionStyle}
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Category
+                  </label>
+                  <select
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    required
+                    style={inputStyle}
                   >
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                    {categories.map((category) => (
+                      <option
+                        key={category.id}
+                        value={category.id}
+                        style={optionStyle}
+                      >
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Registration No
-              </label>
-              <input
-                type="text"
-                value={registrationNo}
-                onChange={(e) => setRegistrationNo(e.target.value)}
-                placeholder="Optional"
-                style={inputStyle}
-              />
-            </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Registration No
+                  </label>
+                  <input
+                    type="text"
+                    value={registrationNo}
+                    onChange={(e) => setRegistrationNo(e.target.value)}
+                    placeholder="Optional"
+                    style={inputStyle}
+                  />
+                </div>
 
-            <div className="landsea-form-grid-2">
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Brand
-                </label>
-                <input
-                  type="text"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  placeholder="e.g. Volvo"
-                  style={inputStyle}
-                />
-              </div>
+                <div className="landsea-form-grid-2">
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Brand
+                    </label>
+                    <input
+                      type="text"
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      placeholder="e.g. Volvo"
+                      style={inputStyle}
+                    />
+                  </div>
 
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Model
-                </label>
-                <input
-                  type="text"
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  placeholder="e.g. FH"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Model
+                    </label>
+                    <input
+                      type="text"
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      placeholder="e.g. FH"
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Specification
-              </label>
-              <input
-                type="text"
-                value={specification}
-                onChange={(e) => setSpecification(e.target.value)}
-                placeholder="Optional"
-                style={inputStyle}
-              />
-            </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Specification
+                  </label>
+                  <input
+                    type="text"
+                    value={specification}
+                    onChange={(e) => setSpecification(e.target.value)}
+                    placeholder="Optional"
+                    style={inputStyle}
+                  />
+                </div>
 
-            <div className="landsea-form-grid-2">
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Ownership Status
-                </label>
-                <input
-                  type="text"
-                  value={ownershipStatus}
-                  onChange={(e) => setOwnershipStatus(e.target.value)}
-                  placeholder="e.g. Owned / Leased"
-                  style={inputStyle}
-                />
-              </div>
+                <div className="landsea-form-grid-2">
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Ownership Status
+                    </label>
+                    <input
+                      type="text"
+                      value={ownershipStatus}
+                      onChange={(e) => setOwnershipStatus(e.target.value)}
+                      placeholder="e.g. Owned / Leased"
+                      style={inputStyle}
+                    />
+                  </div>
 
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Operational Status
-                </label>
-                <select
-                  value={operationalStatus}
-                  onChange={(e) => setOperationalStatus(e.target.value)}
-                  style={inputStyle}
-                >
-                  {statuses.map((status) => (
-                    <option
-                      key={status}
-                      value={status}
-                      style={optionStyle}
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Operational Status
+                    </label>
+                    <select
+                      value={operationalStatus}
+                      onChange={(e) => setOperationalStatus(e.target.value)}
+                      style={inputStyle}
                     >
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                      {statuses.map((status) => (
+                        <option
+                          key={status}
+                          value={status}
+                          style={optionStyle}
+                        >
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Notes
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                placeholder="Optional notes"
-                style={{
-                  ...inputStyle,
-                  resize: "vertical",
-                }}
-              />
-            </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Notes
+                  </label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={4}
+                    placeholder="Optional notes"
+                    style={{
+                      ...inputStyle,
+                      resize: "vertical",
+                    }}
+                  />
+                </div>
 
-            {error ? <div style={errorStyle}>{error}</div> : null}
-            {success ? <div style={successStyle}>{success}</div> : null}
+                {error ? <div style={errorStyle}>{error}</div> : null}
+                {success ? <div style={successStyle}>{success}</div> : null}
 
-            <div className="landsea-form-grid-actions">
-              <button
-                type="submit"
-                disabled={submitting || categories.length === 0}
-                style={{
-                  ...primaryButtonStyle,
-                  opacity: submitting || categories.length === 0 ? 0.8 : 1,
-                }}
-              >
-                {submitting
-                  ? editingId
-                    ? "Updating..."
-                    : "Creating..."
-                  : editingId
-                    ? "Update Asset"
-                    : "Create Asset"}
-              </button>
+                <div className="landsea-form-grid-actions">
+                  <button
+                    type="submit"
+                    disabled={submitting || categories.length === 0}
+                    style={{
+                      ...primaryButtonStyle,
+                      opacity: submitting || categories.length === 0 ? 0.8 : 1,
+                    }}
+                  >
+                    {submitting
+                      ? editingId
+                        ? "Updating..."
+                        : "Creating..."
+                      : editingId
+                        ? "Update Asset"
+                        : "Create Asset"}
+                  </button>
 
-              {editingId ? (
-                <button
-                  type="button"
-                  onClick={cancelEdit}
-                  style={secondaryButtonStyle}
-                >
-                  Cancel Edit
-                </button>
+                  {editingId ? (
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      style={secondaryButtonStyle}
+                    >
+                      Cancel Edit
+                    </button>
+                  ) : null}
+                </div>
+              </form>
+
+              {categories.length === 0 ? (
+                <p style={warningTextStyle}>
+                  You need at least one category before adding assets.
+                </p>
               ) : null}
+            </>
+          ) : (
+            <div style={noteStyle}>
+              Your role can review asset records, but only operations managers
+              and super admins can create, edit, or delete them.
             </div>
-          </form>
-
-          {categories.length === 0 ? (
-            <p style={warningTextStyle}>
-              You need at least one category before adding assets.
-            </p>
-          ) : null}
+          )}
         </section>
 
         <section className="landsea-list-panel" style={panelStyle}>
@@ -659,58 +670,62 @@ export default function AssetsClient({
                         </span>
                       </td>
                       <td style={tdStyle}>
-                        <div style={actionsWrapStyle}>
-                          <button
-                            onClick={() => startEdit(asset)}
-                            disabled={submitting || deletingId === asset.id}
-                            style={{
-                              ...miniButtonStyle,
-                              background:
-                                editingId === asset.id
-                                  ? palette.softSurfaceAlt
-                                  : miniButtonStyle.background,
-                              opacity: submitting || deletingId === asset.id ? 0.7 : 1,
-                            }}
-                          >
-                            {editingId === asset.id ? "Editing..." : "Edit"}
-                          </button>
+                        {canManage ? (
+                          <div style={actionsWrapStyle}>
+                            <button
+                              onClick={() => startEdit(asset)}
+                              disabled={submitting || deletingId === asset.id}
+                              style={{
+                                ...miniButtonStyle,
+                                background:
+                                  editingId === asset.id
+                                    ? palette.softSurfaceAlt
+                                    : miniButtonStyle.background,
+                                opacity: submitting || deletingId === asset.id ? 0.7 : 1,
+                              }}
+                            >
+                              {editingId === asset.id ? "Editing..." : "Edit"}
+                            </button>
 
-                          <button
-                            onClick={() => handleDelete(asset.id)}
-                            disabled={
-                              deletingId === asset.id ||
-                              asset.assignmentCount > 0 ||
-                              asset.maintenanceCount > 0
-                            }
-                            style={{
-                              ...dangerButtonStyle,
-                              background:
+                            <button
+                              onClick={() => handleDelete(asset.id)}
+                              disabled={
+                                deletingId === asset.id ||
+                                asset.assignmentCount > 0 ||
+                                asset.maintenanceCount > 0
+                              }
+                              style={{
+                                ...dangerButtonStyle,
+                                background:
+                                  asset.assignmentCount > 0 || asset.maintenanceCount > 0
+                                    ? palette.softSurfaceAlt
+                                    : dangerButtonStyle.background,
+                                border:
+                                  asset.assignmentCount > 0 || asset.maintenanceCount > 0
+                                    ? `1px solid ${palette.border}`
+                                    : dangerButtonStyle.border,
+                                color:
+                                  asset.assignmentCount > 0 || asset.maintenanceCount > 0
+                                    ? palette.mutedText
+                                    : dangerButtonStyle.color,
+                                cursor:
+                                  asset.assignmentCount > 0 || asset.maintenanceCount > 0
+                                    ? "not-allowed"
+                                    : "pointer",
+                                opacity: deletingId === asset.id ? 0.7 : 1,
+                              }}
+                              title={
                                 asset.assignmentCount > 0 || asset.maintenanceCount > 0
-                                  ? palette.softSurfaceAlt
-                                  : dangerButtonStyle.background,
-                              border:
-                                asset.assignmentCount > 0 || asset.maintenanceCount > 0
-                                  ? `1px solid ${palette.border}`
-                                  : dangerButtonStyle.border,
-                              color:
-                                asset.assignmentCount > 0 || asset.maintenanceCount > 0
-                                  ? palette.mutedText
-                                  : dangerButtonStyle.color,
-                              cursor:
-                                asset.assignmentCount > 0 || asset.maintenanceCount > 0
-                                  ? "not-allowed"
-                                  : "pointer",
-                              opacity: deletingId === asset.id ? 0.7 : 1,
-                            }}
-                            title={
-                              asset.assignmentCount > 0 || asset.maintenanceCount > 0
-                                ? "Cannot delete asset with linked assignments or maintenance."
-                                : "Delete asset"
-                            }
-                          >
-                            {deletingId === asset.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
+                                  ? "Cannot delete asset with linked assignments or maintenance."
+                                  : "Delete asset"
+                              }
+                            >
+                              {deletingId === asset.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={tableMetaTextStyle}>View only</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -720,12 +735,16 @@ export default function AssetsClient({
           </div>
 
           <p style={noteStyle}>
-            Note: Assets can be edited at any time. Delete stays blocked when assignments or maintenance records are linked.
+            {canManage
+              ? "Note: Assets can be edited at any time. Delete stays blocked when assignments or maintenance records are linked."
+              : "You have read-only access to asset records."}
           </p>
         </section>
       </div>
 
-      <EditorJumpButton targetRef={editorPanelRef} label="Jump to asset form" />
+      {canManage ? (
+        <EditorJumpButton targetRef={editorPanelRef} label="Jump to asset form" />
+      ) : null}
     </main>
   );
 }

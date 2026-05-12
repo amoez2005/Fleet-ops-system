@@ -1,12 +1,14 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { jwtVerify, SignJWT } from "jose";
+import type { AppRole } from "@/lib/roles";
+import { hasRole } from "@/lib/roles";
 
 export type SessionUser = {
   userId: string;
   name: string;
   email: string;
-  role: string;
+  role: AppRole;
 };
 
 const secretKey = new TextEncoder().encode(
@@ -48,6 +50,19 @@ export async function requireSession() {
 
   if (!session) {
     redirect("/login");
+  }
+
+  return session;
+}
+
+export async function requireRoles(
+  allowedRoles: readonly AppRole[],
+  redirectTo = "/"
+) {
+  const session = await requireSession();
+
+  if (!hasRole(session.role, allowedRoles)) {
+    redirect(redirectTo);
   }
 
   return session;

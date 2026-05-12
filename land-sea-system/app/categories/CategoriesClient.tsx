@@ -35,8 +35,10 @@ type CategoryItem = {
 
 export default function CategoriesClient({
   categories,
+  canManage,
 }: {
   categories: CategoryItem[];
+  canManage: boolean;
 }) {
   const router = useRouter();
   const editorPanelRef = useRef<HTMLElement | null>(null);
@@ -132,55 +134,64 @@ export default function CategoriesClient({
 
       <div className="landsea-editor-layout landsea-editor-layout--narrow">
         <section ref={editorPanelRef} className="landsea-editor-panel" style={panelStyle}>
-          <h2 style={sectionTitleStyle}>Add Category</h2>
+          <h2 style={sectionTitleStyle}>
+            {canManage ? "Add Category" : "Category Access"}
+          </h2>
 
-          <form onSubmit={handleCreate}>
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                placeholder="e.g. Truck"
-                style={inputStyle}
-              />
+          {canManage ? (
+            <form onSubmit={handleCreate}>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", marginBottom: "8px" }}>
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder="e.g. Truck"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", marginBottom: "8px" }}>
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Optional description"
+                  rows={4}
+                  style={{
+                    ...inputStyle,
+                    resize: "vertical",
+                  }}
+                />
+              </div>
+
+              {error ? (
+                <div style={errorStyle}>{error}</div>
+              ) : null}
+
+              {success ? (
+                <div style={successStyle}>{success}</div>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                style={primaryButtonStyle}
+              >
+                {submitting ? "Creating..." : "Create Category"}
+              </button>
+            </form>
+          ) : (
+            <div style={noteStyle}>
+              Your role can review categories, but only operations managers and
+              super admins can create or delete them.
             </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional description"
-                rows={4}
-                style={{
-                  ...inputStyle,
-                  resize: "vertical",
-                }}
-              />
-            </div>
-
-            {error ? (
-              <div style={errorStyle}>{error}</div>
-            ) : null}
-
-            {success ? (
-              <div style={successStyle}>{success}</div>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              style={primaryButtonStyle}
-            >
-              {submitting ? "Creating..." : "Create Category"}
-            </button>
-          </form>
+          )}
         </section>
 
         <section className="landsea-list-panel" style={panelStyle}>
@@ -219,39 +230,43 @@ export default function CategoriesClient({
                         </span>
                       </td>
                       <td style={tdStyle}>
-                        <button
-                          onClick={() => handleDelete(category.id)}
-                          disabled={
-                            deletingId === category.id || category.assetCount > 0
-                          }
-                          style={{
-                            ...primaryButtonStyle,
-                            width: "auto",
-                            padding: "8px 12px",
-                            background:
+                        {canManage ? (
+                          <button
+                            onClick={() => handleDelete(category.id)}
+                            disabled={
+                              deletingId === category.id || category.assetCount > 0
+                            }
+                            style={{
+                              ...primaryButtonStyle,
+                              width: "auto",
+                              padding: "8px 12px",
+                              background:
+                                category.assetCount > 0
+                                  ? palette.softSurfaceAlt
+                                  : palette.spicyPaprika,
+                              border:
+                                category.assetCount > 0
+                                  ? `1px solid ${palette.border}`
+                                  : `1px solid ${palette.accentBorder}`,
+                              color:
+                                category.assetCount > 0
+                                  ? palette.mutedText
+                                  : palette.floralWhite,
+                              cursor:
+                                category.assetCount > 0 ? "not-allowed" : "pointer",
+                              opacity: deletingId === category.id ? 0.7 : 1,
+                            }}
+                            title={
                               category.assetCount > 0
-                                ? palette.softSurfaceAlt
-                                : palette.spicyPaprika,
-                            border:
-                              category.assetCount > 0
-                                ? `1px solid ${palette.border}`
-                                : `1px solid ${palette.accentBorder}`,
-                            color:
-                              category.assetCount > 0
-                                ? palette.mutedText
-                                : palette.floralWhite,
-                            cursor:
-                              category.assetCount > 0 ? "not-allowed" : "pointer",
-                            opacity: deletingId === category.id ? 0.7 : 1,
-                          }}
-                          title={
-                            category.assetCount > 0
-                              ? "Cannot delete category with linked assets."
-                              : "Delete category"
-                          }
-                        >
-                          {deletingId === category.id ? "Deleting..." : "Delete"}
-                        </button>
+                                ? "Cannot delete category with linked assets."
+                                : "Delete category"
+                            }
+                          >
+                            {deletingId === category.id ? "Deleting..." : "Delete"}
+                          </button>
+                        ) : (
+                          <span style={tableMetaTextStyle}>View only</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -261,12 +276,19 @@ export default function CategoriesClient({
           </div>
 
           <p style={noteStyle}>
-            Note: Categories with linked assets cannot be deleted.
+            {canManage
+              ? "Note: Categories with linked assets cannot be deleted."
+              : "You have read-only access to category records."}
           </p>
         </section>
       </div>
 
-      <EditorJumpButton targetRef={editorPanelRef} label="Jump to category form" />
+      {canManage ? (
+        <EditorJumpButton
+          targetRef={editorPanelRef}
+          label="Jump to category form"
+        />
+      ) : null}
     </main>
   );
 }

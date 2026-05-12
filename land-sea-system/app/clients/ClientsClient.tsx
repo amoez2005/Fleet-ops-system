@@ -53,8 +53,10 @@ const statuses = ["ACTIVE", "INACTIVE", "HOLD"];
 
 export default function ClientsClient({
   clients,
+  canManage,
 }: {
   clients: ClientItem[];
+  canManage: boolean;
 }) {
   const router = useRouter();
   const editorPanelRef = useRef<HTMLElement | null>(null);
@@ -214,176 +216,183 @@ export default function ClientsClient({
       <div className="landsea-editor-layout">
         <section ref={editorPanelRef} className="landsea-editor-panel" style={panelStyle}>
           <h2 style={sectionTitleStyle}>
-            {editingId ? "Edit Client" : "Add Client"}
+            {canManage ? (editingId ? "Edit Client" : "Add Client") : "Client Access"}
           </h2>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Client Code
-              </label>
-              <input
-                type="text"
-                value={clientCode}
-                onChange={(e) => setClientCode(e.target.value)}
-                required
-                placeholder="e.g. CL-002"
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Company Name
-              </label>
-              <input
-                type="text"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                required
-                placeholder="e.g. XYZ Logistics Ltd."
-                style={inputStyle}
-              />
-            </div>
-
-            <div className="landsea-form-grid-2">
-              <div>
+          {canManage ? (
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", marginBottom: "8px" }}>
-                  Contact Person
+                  Client Code
                 </label>
                 <input
                   type="text"
-                  value={contactPerson}
-                  onChange={(e) => setContactPerson(e.target.value)}
+                  value={clientCode}
+                  onChange={(e) => setClientCode(e.target.value)}
+                  required
+                  placeholder="e.g. CL-002"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", marginBottom: "8px" }}>
+                  Company Name
+                </label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  required
+                  placeholder="e.g. XYZ Logistics Ltd."
+                  style={inputStyle}
+                />
+              </div>
+
+              <div className="landsea-form-grid-2">
+                <div>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Contact Person
+                  </label>
+                  <input
+                    type="text"
+                    value={contactPerson}
+                    onChange={(e) => setContactPerson(e.target.value)}
+                    placeholder="Optional"
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Optional"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", marginBottom: "8px" }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Optional"
                   style={inputStyle}
                 />
               </div>
 
-              <div>
+              <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "block", marginBottom: "8px" }}>
-                  Phone
+                  Address
                 </label>
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  rows={3}
                   placeholder="Optional"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Optional"
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Address
-              </label>
-              <textarea
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                rows={3}
-                placeholder="Optional"
-                style={{
-                  ...inputStyle,
-                  resize: "vertical",
-                }}
-              />
-            </div>
-
-            <div className="landsea-form-grid-2">
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Invoice Terms
-                </label>
-                <input
-                  type="text"
-                  value={invoiceTerms}
-                  onChange={(e) => setInvoiceTerms(e.target.value)}
-                  placeholder="Optional"
-                  style={inputStyle}
+                  style={{
+                    ...inputStyle,
+                    resize: "vertical",
+                  }}
                 />
               </div>
 
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Status
-                </label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  style={inputStyle}
-                >
-                  {statuses.map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                      style={optionStyle}
-                    >
-                      {item}
-                    </option>
-                  ))}
-                </select>
+              <div className="landsea-form-grid-2">
+                <div>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Invoice Terms
+                  </label>
+                  <input
+                    type="text"
+                    value={invoiceTerms}
+                    onChange={(e) => setInvoiceTerms(e.target.value)}
+                    placeholder="Optional"
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Status
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    style={inputStyle}
+                  >
+                    {statuses.map((item) => (
+                      <option
+                        key={item}
+                        value={item}
+                        style={optionStyle}
+                      >
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Contract Notes
-              </label>
-              <textarea
-                value={contractNotes}
-                onChange={(e) => setContractNotes(e.target.value)}
-                rows={4}
-                placeholder="Optional"
-                style={{
-                  ...inputStyle,
-                  resize: "vertical",
-                }}
-              />
-            </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", marginBottom: "8px" }}>
+                  Contract Notes
+                </label>
+                <textarea
+                  value={contractNotes}
+                  onChange={(e) => setContractNotes(e.target.value)}
+                  rows={4}
+                  placeholder="Optional"
+                  style={{
+                    ...inputStyle,
+                    resize: "vertical",
+                  }}
+                />
+              </div>
 
-            {error ? <div style={errorStyle}>{error}</div> : null}
-            {success ? <div style={successStyle}>{success}</div> : null}
+              {error ? <div style={errorStyle}>{error}</div> : null}
+              {success ? <div style={successStyle}>{success}</div> : null}
 
-            <div className="landsea-form-grid-actions">
-              <button
-                type="submit"
-                disabled={submitting}
-                style={primaryButtonStyle}
-              >
-                {submitting
-                  ? editingId
-                    ? "Updating..."
-                    : "Creating..."
-                  : editingId
-                    ? "Update Client"
-                    : "Create Client"}
-              </button>
-
-              {editingId ? (
+              <div className="landsea-form-grid-actions">
                 <button
-                  type="button"
-                  onClick={cancelEdit}
-                  style={secondaryButtonStyle}
+                  type="submit"
+                  disabled={submitting}
+                  style={primaryButtonStyle}
                 >
-                  Cancel Edit
+                  {submitting
+                    ? editingId
+                      ? "Updating..."
+                      : "Creating..."
+                    : editingId
+                      ? "Update Client"
+                      : "Create Client"}
                 </button>
-              ) : null}
+
+                {editingId ? (
+                  <button
+                    type="button"
+                    onClick={cancelEdit}
+                    style={secondaryButtonStyle}
+                  >
+                    Cancel Edit
+                  </button>
+                ) : null}
+              </div>
+            </form>
+          ) : (
+            <div style={noteStyle}>
+              Your role can review client records, but only operations managers
+              and super admins can create, edit, or delete them.
             </div>
-          </form>
+          )}
         </section>
 
         <section className="landsea-list-panel" style={panelStyle}>
@@ -439,58 +448,62 @@ export default function ClientsClient({
                         </span>
                       </td>
                       <td style={tdStyle}>
-                        <div style={actionsWrapStyle}>
-                          <button
-                            onClick={() => startEdit(client)}
-                            disabled={submitting || deletingId === client.id}
-                            style={{
-                              ...miniButtonStyle,
-                              background:
-                                editingId === client.id
-                                  ? palette.softSurfaceAlt
-                                  : miniButtonStyle.background,
-                              opacity: submitting || deletingId === client.id ? 0.7 : 1,
-                            }}
-                          >
-                            {editingId === client.id ? "Editing..." : "Edit"}
-                          </button>
+                        {canManage ? (
+                          <div style={actionsWrapStyle}>
+                            <button
+                              onClick={() => startEdit(client)}
+                              disabled={submitting || deletingId === client.id}
+                              style={{
+                                ...miniButtonStyle,
+                                background:
+                                  editingId === client.id
+                                    ? palette.softSurfaceAlt
+                                    : miniButtonStyle.background,
+                                opacity: submitting || deletingId === client.id ? 0.7 : 1,
+                              }}
+                            >
+                              {editingId === client.id ? "Editing..." : "Edit"}
+                            </button>
 
-                          <button
-                            onClick={() => handleDelete(client.id)}
-                            disabled={
-                              deletingId === client.id ||
-                              client.assignmentCount > 0 ||
-                              client.invoiceCount > 0
-                            }
-                            style={{
-                              ...dangerButtonStyle,
-                              background:
+                            <button
+                              onClick={() => handleDelete(client.id)}
+                              disabled={
+                                deletingId === client.id ||
+                                client.assignmentCount > 0 ||
+                                client.invoiceCount > 0
+                              }
+                              style={{
+                                ...dangerButtonStyle,
+                                background:
+                                  client.assignmentCount > 0 || client.invoiceCount > 0
+                                    ? palette.softSurfaceAlt
+                                    : dangerButtonStyle.background,
+                                border:
+                                  client.assignmentCount > 0 || client.invoiceCount > 0
+                                    ? `1px solid ${palette.border}`
+                                    : dangerButtonStyle.border,
+                                color:
+                                  client.assignmentCount > 0 || client.invoiceCount > 0
+                                    ? palette.mutedText
+                                    : dangerButtonStyle.color,
+                                cursor:
+                                  client.assignmentCount > 0 || client.invoiceCount > 0
+                                    ? "not-allowed"
+                                    : "pointer",
+                                opacity: deletingId === client.id ? 0.7 : 1,
+                              }}
+                              title={
                                 client.assignmentCount > 0 || client.invoiceCount > 0
-                                  ? palette.softSurfaceAlt
-                                  : dangerButtonStyle.background,
-                              border:
-                                client.assignmentCount > 0 || client.invoiceCount > 0
-                                  ? `1px solid ${palette.border}`
-                                  : dangerButtonStyle.border,
-                              color:
-                                client.assignmentCount > 0 || client.invoiceCount > 0
-                                  ? palette.mutedText
-                                  : dangerButtonStyle.color,
-                              cursor:
-                                client.assignmentCount > 0 || client.invoiceCount > 0
-                                  ? "not-allowed"
-                                  : "pointer",
-                              opacity: deletingId === client.id ? 0.7 : 1,
-                            }}
-                            title={
-                              client.assignmentCount > 0 || client.invoiceCount > 0
-                                ? "Cannot delete client with linked assignments or invoices."
-                                : "Delete client"
-                            }
-                          >
-                            {deletingId === client.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
+                                  ? "Cannot delete client with linked assignments or invoices."
+                                  : "Delete client"
+                              }
+                            >
+                              {deletingId === client.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={tableMetaTextStyle}>View only</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -500,12 +513,16 @@ export default function ClientsClient({
           </div>
 
           <p style={noteStyle}>
-            Note: Clients can be edited at any time. Delete stays blocked when assignments or invoices are linked.
+            {canManage
+              ? "Note: Clients can be edited at any time. Delete stays blocked when assignments or invoices are linked."
+              : "You have read-only access to client records."}
           </p>
         </section>
       </div>
 
-      <EditorJumpButton targetRef={editorPanelRef} label="Jump to client form" />
+      {canManage ? (
+        <EditorJumpButton targetRef={editorPanelRef} label="Jump to client form" />
+      ) : null}
     </main>
   );
 }

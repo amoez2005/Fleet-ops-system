@@ -56,9 +56,11 @@ type AssetOption = {
 export default function MaintenanceClient({
   maintenanceRecords,
   assets,
+  canManage,
 }: {
   maintenanceRecords: MaintenanceItem[];
   assets: AssetOption[];
+  canManage: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -235,153 +237,166 @@ export default function MaintenanceClient({
       <div className="landsea-editor-layout">
         <section ref={editorPanelRef} className="landsea-editor-panel" style={panelStyle}>
           <h2 style={sectionTitleStyle}>
-            {editingId ? "Edit Maintenance Record" : "Add Maintenance Record"}
+            {canManage
+              ? editingId
+                ? "Edit Maintenance Record"
+                : "Add Maintenance Record"
+              : "Maintenance Access"}
           </h2>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Asset
-              </label>
-              <select
-                value={assetId}
-                onChange={(e) => setAssetId(e.target.value)}
-                required
-                style={inputStyle}
-              >
-                {assets.map((asset) => (
-                  <option
-                    key={asset.id}
-                    value={asset.id}
-                    style={optionStyle}
+          {canManage ? (
+            <>
+              <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Asset
+                  </label>
+                  <select
+                    value={assetId}
+                    onChange={(e) => setAssetId(e.target.value)}
+                    required
+                    style={inputStyle}
                   >
-                    {asset.assetCode} ({asset.categoryName}) - {asset.operationalStatus}
-                  </option>
-                ))}
-              </select>
-            </div>
+                    {assets.map((asset) => (
+                      <option
+                        key={asset.id}
+                        value={asset.id}
+                        style={optionStyle}
+                      >
+                        {asset.assetCode} ({asset.categoryName}) - {asset.operationalStatus}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Service Type
-              </label>
-              <input
-                type="text"
-                value={serviceType}
-                onChange={(e) => setServiceType(e.target.value)}
-                required
-                placeholder="e.g. Oil Change"
-                style={inputStyle}
-              />
-            </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Service Type
+                  </label>
+                  <input
+                    type="text"
+                    value={serviceType}
+                    onChange={(e) => setServiceType(e.target.value)}
+                    required
+                    placeholder="e.g. Oil Change"
+                    style={inputStyle}
+                  />
+                </div>
 
-            <div className="landsea-form-grid-2">
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Last Service (UTC)
-                </label>
-                <input
-                  type="datetime-local"
-                  value={lastServiceDate}
-                  onChange={(e) => setLastServiceDate(e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
+                <div className="landsea-form-grid-2">
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Last Service (UTC)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={lastServiceDate}
+                      onChange={(e) => setLastServiceDate(e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
 
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Next Due (UTC)
-                </label>
-                <input
-                  type="datetime-local"
-                  value={nextDueDate}
-                  onChange={(e) => setNextDueDate(e.target.value)}
-                  style={inputStyle}
-                />
-              </div>
-            </div>
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Next Due (UTC)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={nextDueDate}
+                      onChange={(e) => setNextDueDate(e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
 
-            <div className="landsea-form-grid-2">
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Cost
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={cost}
-                  onChange={(e) => setCost(e.target.value)}
-                  placeholder="Optional"
-                  style={inputStyle}
-                />
-              </div>
+                <div className="landsea-form-grid-2">
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Cost
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={cost}
+                      onChange={(e) => setCost(e.target.value)}
+                      placeholder="Optional"
+                      style={inputStyle}
+                    />
+                  </div>
 
-              <div>
-                <label style={{ display: "block", marginBottom: "8px" }}>
-                  Vendor
-                </label>
-                <input
-                  type="text"
-                  value={vendor}
-                  onChange={(e) => setVendor(e.target.value)}
-                  placeholder="Optional"
-                  style={inputStyle}
-                />
-              </div>
-            </div>
+                  <div>
+                    <label style={{ display: "block", marginBottom: "8px" }}>
+                      Vendor
+                    </label>
+                    <input
+                      type="text"
+                      value={vendor}
+                      onChange={(e) => setVendor(e.target.value)}
+                      placeholder="Optional"
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", marginBottom: "8px" }}>
-                Notes
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                placeholder="Optional notes"
-                style={{
-                  ...inputStyle,
-                  resize: "vertical",
-                }}
-              />
-            </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", marginBottom: "8px" }}>
+                    Notes
+                  </label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={4}
+                    placeholder="Optional notes"
+                    style={{
+                      ...inputStyle,
+                      resize: "vertical",
+                    }}
+                  />
+                </div>
 
-            {error ? <div style={errorStyle}>{error}</div> : null}
-            {success ? <div style={successStyle}>{success}</div> : null}
+                {error ? <div style={errorStyle}>{error}</div> : null}
+                {success ? <div style={successStyle}>{success}</div> : null}
 
-            <div className="landsea-form-grid-actions">
-              <button
-                type="submit"
-                disabled={submitting || assets.length === 0}
-                style={primaryButtonStyle}
-              >
-                {submitting
-                  ? editingId
-                    ? "Updating..."
-                    : "Creating..."
-                  : editingId
-                    ? "Update Maintenance Record"
-                    : "Create Maintenance Record"}
-              </button>
+                <div className="landsea-form-grid-actions">
+                  <button
+                    type="submit"
+                    disabled={submitting || assets.length === 0}
+                    style={primaryButtonStyle}
+                  >
+                    {submitting
+                      ? editingId
+                        ? "Updating..."
+                        : "Creating..."
+                      : editingId
+                        ? "Update Maintenance Record"
+                        : "Create Maintenance Record"}
+                  </button>
 
-              {editingId ? (
-                <button
-                  type="button"
-                  onClick={cancelEdit}
-                  style={secondaryButtonStyle}
-                >
-                  Cancel Edit
-                </button>
+                  {editingId ? (
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      style={secondaryButtonStyle}
+                    >
+                      Cancel Edit
+                    </button>
+                  ) : null}
+                </div>
+              </form>
+
+              {assets.length === 0 ? (
+                <p style={warningTextStyle}>
+                  You need at least one asset before adding maintenance records.
+                </p>
               ) : null}
+            </>
+          ) : (
+            <div style={noteStyle}>
+              Your role can review maintenance records, but only operations
+              managers and super admins can create, edit, or delete them.
             </div>
-          </form>
-
-          {assets.length === 0 ? (
-            <p style={warningTextStyle}>
-              You need at least one asset before adding maintenance records.
-            </p>
-          ) : null}
+          )}
         </section>
 
         <section className="landsea-list-panel" style={panelStyle}>
@@ -480,23 +495,27 @@ export default function MaintenanceClient({
                       <td style={tdStyle}>{record.vendor || "-"}</td>
                       <td style={tdStyle}>{record.notes || "-"}</td>
                       <td style={tdStyle}>
-                        <div style={actionsWrapStyle}>
-                          <button
-                            onClick={() => startEdit(record)}
-                            disabled={submitting || deletingId === record.id}
-                            style={miniButtonStyle}
-                          >
-                            {editingId === record.id ? "Editing..." : "Edit"}
-                          </button>
+                        {canManage ? (
+                          <div style={actionsWrapStyle}>
+                            <button
+                              onClick={() => startEdit(record)}
+                              disabled={submitting || deletingId === record.id}
+                              style={miniButtonStyle}
+                            >
+                              {editingId === record.id ? "Editing..." : "Edit"}
+                            </button>
 
-                          <button
-                            onClick={() => handleDelete(record.id)}
-                            disabled={deletingId === record.id}
-                            style={dangerButtonStyle}
-                          >
-                            {deletingId === record.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
+                            <button
+                              onClick={() => handleDelete(record.id)}
+                              disabled={deletingId === record.id}
+                              style={dangerButtonStyle}
+                            >
+                              {deletingId === record.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={tableMetaTextStyle}>View only</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -506,15 +525,19 @@ export default function MaintenanceClient({
           </div>
 
           <p style={noteStyle}>
-            Note: Maintenance records can be edited or deleted from here.
+            {canManage
+              ? "Note: Maintenance records can be edited or deleted from here."
+              : "You have read-only access to maintenance records."}
           </p>
         </section>
       </div>
 
-      <EditorJumpButton
-        targetRef={editorPanelRef}
-        label="Jump to maintenance form"
-      />
+      {canManage ? (
+        <EditorJumpButton
+          targetRef={editorPanelRef}
+          label="Jump to maintenance form"
+        />
+      ) : null}
     </main>
   );
 }

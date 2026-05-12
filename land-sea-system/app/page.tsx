@@ -2,6 +2,11 @@ import Link from "next/link";
 import { AssetStatus, AssignmentStatus, InvoiceStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import {
+  canAccessFinancials,
+  canAccessSalaries,
+  canAccessUsers,
+} from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -24,26 +29,33 @@ const quickActions = [
     label: "Create Invoice",
     href: "/invoices",
     note: "Billing and PDF export",
+    scope: "finance",
   },
   {
     label: "Add Revenue",
     href: "/revenues",
     note: "Record assignment earnings",
+    scope: "finance",
   },
   {
     label: "Schedule Maintenance",
     href: "/maintenance",
     note: "Service fleet and equipment",
+    scope: "operations",
   },
   {
     label: "Review Assignments",
     href: "/assignments",
     note: "Track active jobs",
+    scope: "operations",
   },
 ];
 
 export default async function Home() {
   const session = await requireSession();
+  const canViewFinance = canAccessFinancials(session.role);
+  const canViewSalaries = canAccessSalaries(session.role);
+  const canViewUsers = canAccessUsers(session.role);
   const now = new Date();
   const currentMonthStart = startOfUtcMonth(now);
   const nextTwoWeeks = addUtcDays(now, 14);
@@ -247,35 +259,63 @@ export default async function Home() {
     },
   ]);
 
-  const summaryCards = [
-    {
-      label: "Total Income",
-      value: formatAmount(totalIncome),
-      note: "Net revenue booked across assignments",
-      accent: palette.hunterGreen,
-    },
-    {
-      label: "Total Expenses",
-      value: formatAmount(totalExpenses),
-      note: "Salary and maintenance obligations",
-      accent: palette.blushedBrick,
-    },
-    {
-      label: "Net",
-      value: formatAmount(netPosition),
-      note: netPosition >= 0 ? "+ healthy position" : "- needs attention",
-      accent: netPosition >= 0 ? palette.yellowGreen : palette.blushedBrick,
-    },
-  ];
+  const summaryCards = canViewFinance
+    ? [
+        {
+          label: "Total Income",
+          value: formatAmount(totalIncome),
+          note: "Net revenue booked across assignments",
+          accent: palette.hunterGreen,
+        },
+        {
+          label: "Total Expenses",
+          value: formatAmount(totalExpenses),
+          note: "Salary and maintenance obligations",
+          accent: palette.blushedBrick,
+        },
+        {
+          label: "Net",
+          value: formatAmount(netPosition),
+          note: netPosition >= 0 ? "+ healthy position" : "- needs attention",
+          accent: netPosition >= 0 ? palette.yellowGreen : palette.blushedBrick,
+        },
+      ]
+    : [
+        {
+          label: "Active Assignments",
+          value: String(activeAssignmentCount),
+          note: "Current operational workload",
+          accent: palette.hunterGreen,
+        },
+        {
+          label: "Available Assets",
+          value: String(availableAssetCount),
+          note: "Ready for dispatch",
+          accent: palette.yellowGreen,
+        },
+        {
+          label: "Due Soon Maintenance",
+          value: String(dueSoonMaintenanceCount),
+          note: dueSoonMaintenanceCount > 0 ? "Needs scheduling" : "Nothing urgent",
+          accent:
+            dueSoonMaintenanceCount > 0
+              ? palette.blushedBrick
+              : palette.sageGreen,
+        },
+      ];
 
   const radarItems = [
-    {
-      label: "Overdue Invoices",
-      value: overdueInvoiceCount,
-      note: "Needs finance follow-up",
-      href: "/invoices?focus=overdue",
-      urgent: overdueInvoiceCount > 0,
-    },
+    ...(canViewFinance
+      ? [
+          {
+            label: "Overdue Invoices",
+            value: overdueInvoiceCount,
+            note: "Needs finance follow-up",
+            href: "/invoices?focus=overdue",
+            urgent: overdueInvoiceCount > 0,
+          },
+        ]
+      : []),
     {
       label: "Due Soon Maintenance",
       value: dueSoonMaintenanceCount,
@@ -300,18 +340,22 @@ export default async function Home() {
   ];
 
   const moduleSnapshot = [
-    {
-      label: "Invoices",
-      description: "billing pipeline",
-      href: "/invoices",
-      value: invoiceCount,
-    },
-    {
-      label: "Revenues",
-      description: "confirmed earnings",
-      href: "/revenues",
-      value: revenueCount,
-    },
+    ...(canViewFinance
+      ? [
+          {
+            label: "Invoices",
+            description: "billing pipeline",
+            href: "/invoices",
+            value: invoiceCount,
+          },
+          {
+            label: "Revenues",
+            description: "confirmed earnings",
+            href: "/revenues",
+            value: revenueCount,
+          },
+        ]
+      : []),
     {
       label: "Assignments",
       description: "active job records",
@@ -324,12 +368,16 @@ export default async function Home() {
       href: "/assets",
       value: assetCount,
     },
-    {
-      label: "Salaries",
-      description: "payroll records",
-      href: "/salaries",
-      value: salaryCount,
-    },
+    ...(canViewSalaries
+      ? [
+          {
+            label: "Salaries",
+            description: "payroll records",
+            href: "/salaries",
+            value: salaryCount,
+          },
+        ]
+      : []),
     {
       label: "Clients",
       description: "account relationships",
@@ -345,27 +393,33 @@ export default async function Home() {
   ];
 
   const recentActivity = [
-    ...recentInvoices.map((invoice) => ({
-      id: `invoice-${invoice.id}`,
-      date: invoice.issueDate,
-      description: `${invoice.invoiceNo} for ${invoice.client.companyName}`,
-      category: `Invoice / ${invoice.status}`,
-      amount: formatAmount(invoice.totalAmount),
-    })),
-    ...recentRevenues.map((revenue) => ({
-      id: `revenue-${revenue.id}`,
-      date: revenue.revenueDate,
-      description: `${revenue.assignment.title || "Untitled Assignment"} / ${revenue.assignment.client.companyName}`,
-      category: `Revenue / ${revenue.revenueCategory || "General"}`,
-      amount: formatAmount(revenue.netAmount),
-    })),
-    ...recentSalaries.map((salary) => ({
-      id: `salary-${salary.id}`,
-      date: salary.paymentDate ?? salary.salaryMonth,
-      description: `${salary.employeeName} salary record`,
-      category: `Salary / ${salary.roleTitle || "Payroll"}`,
-      amount: formatAmount(salary.amount),
-    })),
+    ...(canViewFinance
+      ? recentInvoices.map((invoice) => ({
+          id: `invoice-${invoice.id}`,
+          date: invoice.issueDate,
+          description: `${invoice.invoiceNo} for ${invoice.client.companyName}`,
+          category: `Invoice / ${invoice.status}`,
+          amount: formatAmount(invoice.totalAmount),
+        }))
+      : []),
+    ...(canViewFinance
+      ? recentRevenues.map((revenue) => ({
+          id: `revenue-${revenue.id}`,
+          date: revenue.revenueDate,
+          description: `${revenue.assignment.title || "Untitled Assignment"} / ${revenue.assignment.client.companyName}`,
+          category: `Revenue / ${revenue.revenueCategory || "General"}`,
+          amount: formatAmount(revenue.netAmount),
+        }))
+      : []),
+    ...(canViewSalaries
+      ? recentSalaries.map((salary) => ({
+          id: `salary-${salary.id}`,
+          date: salary.paymentDate ?? salary.salaryMonth,
+          description: `${salary.employeeName} salary record`,
+          category: `Salary / ${salary.roleTitle || "Payroll"}`,
+          amount: formatAmount(salary.amount),
+        }))
+      : []),
     ...recentMaintenance.map((record) => ({
       id: `maintenance-${record.id}`,
       date: record.nextDueDate ?? record.lastServiceDate ?? record.createdAt,
@@ -376,6 +430,10 @@ export default async function Home() {
   ]
     .sort((left, right) => right.date.getTime() - left.date.getTime())
     .slice(0, 8);
+
+  const visibleQuickActions = quickActions.filter((item) =>
+    item.scope === "finance" ? canViewFinance : true
+  );
 
   return (
     <main
@@ -614,16 +672,22 @@ export default async function Home() {
                     minWidth: "220px",
                   }}
                 >
-                  <div style={heroMetricLabelStyle}>Outstanding invoices</div>
+                  <div style={heroMetricLabelStyle}>
+                    {canViewFinance ? "Outstanding invoices" : "Due soon maintenance"}
+                  </div>
                   <div style={heroMetricValueStyle}>
-                    {formatAmount(outstandingAmount)}
+                    {canViewFinance
+                      ? formatAmount(outstandingAmount)
+                      : String(dueSoonMaintenanceCount)}
                   </div>
                 </div>
 
-                <div style={heroMiniPillStyle}>
-                  <span>Overdue</span>
-                  <strong>{overdueInvoiceCount}</strong>
-                </div>
+                {canViewFinance ? (
+                  <div style={heroMiniPillStyle}>
+                    <span>Overdue</span>
+                    <strong>{overdueInvoiceCount}</strong>
+                  </div>
+                ) : null}
 
                 <div style={heroMiniPillStyle}>
                   <span>Available assets</span>
@@ -697,7 +761,7 @@ export default async function Home() {
                 </div>
 
                 <div style={quickActionGridStyle}>
-                  {quickActions.map((item) => (
+                  {visibleQuickActions.map((item) => (
                     <Link key={item.href} href={item.href} style={quickActionCardStyle}>
                       <div style={quickActionLabelStyle}>{item.label}</div>
                       <div style={quickActionNoteStyle}>{item.note}</div>
@@ -778,6 +842,7 @@ export default async function Home() {
             </div>
 
             <div className="insight-grid">
+              {canViewFinance ? (
               <section style={panelStyle}>
                 <div style={panelHeaderStyle}>
                   <div>
@@ -848,7 +913,9 @@ export default async function Home() {
                   ))}
                 </div>
               </section>
+              ) : null}
 
+              {canViewFinance || canViewSalaries ? (
               <section style={panelStyle}>
                 <div style={panelHeaderStyle}>
                   <div>
@@ -863,13 +930,13 @@ export default async function Home() {
                   style={{
                     display: "grid",
                     justifyItems: "center",
-                    gap: "14px",
+                    gap: "18px",
                     paddingTop: "8px",
                   }}
                 >
                   <svg
                     viewBox="0 0 160 160"
-                    style={{ width: "210px", maxWidth: "100%" }}
+                    style={{ width: "220px", maxWidth: "100%" }}
                   >
                     <circle
                       cx="80"
@@ -895,65 +962,128 @@ export default async function Home() {
                         transform="rotate(-90 80 80)"
                       />
                     ))}
+                  </svg>
 
-                    <text
-                      x="80"
-                      y="74"
-                      textAnchor="middle"
-                      style={{ fontSize: "12px", fill: palette.sageGreen }}
-                    >
-                      Total
-                    </text>
-                    <text
-                      x="80"
-                      y="92"
-                      textAnchor="middle"
+                  <div
+                    style={{
+                      width: "100%",
+                      padding: "14px 16px",
+                      borderRadius: "16px",
+                      border: `1px solid ${palette.sageGreen}22`,
+                      background: "rgba(255, 252, 242, 0.82)",
+                      display: "grid",
+                      gap: "6px",
+                      textAlign: "center",
+                    }}
+                  >
+                    <div
                       style={{
-                        fontSize: "16px",
+                        color: palette.sageGreen,
+                        fontSize: "12px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Total expense pool
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "26px",
                         fontWeight: 800,
-                        fill: palette.hunterGreen,
+                        letterSpacing: "-0.04em",
+                        color: palette.carbonBlack,
+                        fontVariantNumeric: "tabular-nums",
                       }}
                     >
                       {formatAmount(totalExpenses)}
-                    </text>
-                  </svg>
+                    </div>
+                  </div>
 
-                  <div style={{ display: "grid", gap: "10px", width: "100%" }}>
+                  <div style={{ display: "grid", gap: "12px", width: "100%" }}>
                     {expenseSplit.segments.map((segment) => (
                       <div
                         key={segment.label}
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: "12px",
-                          alignItems: "center",
+                          display: "grid",
+                          gap: "8px",
+                          padding: "12px 14px",
+                          borderRadius: "16px",
+                          border: `1px solid ${palette.sageGreen}22`,
+                          background: "rgba(255, 252, 242, 0.74)",
                         }}
                       >
                         <div
                           style={{
                             display: "flex",
+                            justifyContent: "space-between",
+                            gap: "12px",
                             alignItems: "center",
-                            gap: "10px",
-                            color: palette.hunterGreen,
                           }}
                         >
-                          <span
+                          <div
                             style={{
-                              width: "12px",
-                              height: "12px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              color: palette.hunterGreen,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: "12px",
+                                height: "12px",
+                                borderRadius: "999px",
+                                background: segment.color,
+                                display: "inline-block",
+                                flexShrink: 0,
+                              }}
+                            />
+                            <div>
+                              <div style={{ fontWeight: 700 }}>{segment.label}</div>
+                              <div
+                                style={{
+                                  color: palette.sageGreen,
+                                  fontSize: "12px",
+                                }}
+                              >
+                                {formatExpenseShare(segment.value, totalExpenses)} of total
+                              </div>
+                            </div>
+                          </div>
+                          <strong
+                            style={{
+                              color: palette.carbonBlack,
+                              fontSize: "15px",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
+                            {formatAmount(segment.value)}
+                          </strong>
+                        </div>
+                        <div
+                          style={{
+                            height: "8px",
+                            borderRadius: "999px",
+                            background: "rgba(204, 197, 185, 0.24)",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${getExpenseShareWidth(segment.value, totalExpenses)}%`,
+                              height: "100%",
                               borderRadius: "999px",
                               background: segment.color,
-                              display: "inline-block",
                             }}
                           />
-                          {segment.label}
                         </div>
-                        <strong>{formatAmount(segment.value)}</strong>
                       </div>
                     ))}
                   </div>
                 </div>
               </section>
+              ) : null}
 
               <section style={panelStyle}>
                 <div style={panelHeaderStyle}>
@@ -1009,12 +1139,14 @@ export default async function Home() {
                 <div>
                   <h2 style={panelTitleStyle}>Recent Activity</h2>
                   <p style={panelSubtitleStyle}>
-                    Latest finance and operations records across the system.
+                    Latest records visible to your role.
                   </p>
                 </div>
 
                 <div style={{ color: palette.sageGreen, fontSize: "13px" }}>
-                  Users {userCount} / Categories {categoryCount}
+                  {canViewUsers
+                    ? `Users ${userCount} / Categories ${categoryCount}`
+                    : `Categories ${categoryCount}`}
                 </div>
               </div>
 
@@ -1327,6 +1459,22 @@ function formatAmount(value: number | { toString(): string } | null | undefined)
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+function formatExpenseShare(value: number, total: number) {
+  if (total <= 0) {
+    return "0%";
+  }
+
+  return `${Math.round((value / total) * 100)}%`;
+}
+
+function getExpenseShareWidth(value: number, total: number) {
+  if (total <= 0) {
+    return 0;
+  }
+
+  return Math.max((value / total) * 100, 6);
 }
 
 function startOfUtcMonth(value: Date) {
