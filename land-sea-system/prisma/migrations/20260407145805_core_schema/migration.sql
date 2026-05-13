@@ -5,7 +5,7 @@
 
 */
 -- AlterTable
-ALTER TABLE `user` ADD COLUMN `updatedAt` DATETIME(3) NOT NULL;
+ALTER TABLE `User` ADD COLUMN `updatedAt` DATETIME(3) NOT NULL;
 
 -- CreateTable
 CREATE TABLE `Category` (

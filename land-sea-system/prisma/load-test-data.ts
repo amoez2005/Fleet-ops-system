@@ -4,7 +4,6 @@ import {
   AssignmentStatus,
   ClientStatus,
   InvoiceStatus,
-  Prisma,
   PrismaClient,
 } from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
@@ -13,30 +12,37 @@ function getDatabaseConfig() {
   const databaseUrl = process.env.DATABASE_URL ?? process.env.MYSQL_URL;
   const parsedUrl = databaseUrl ? new URL(databaseUrl) : null;
   const databaseNameFromUrl = parsedUrl?.pathname.replace(/^\//, "") ?? "";
+  const hostFromUrl = parsedUrl?.hostname ?? "";
+  const portFromUrl = parsedUrl?.port ?? "";
+  const userFromUrl = parsedUrl?.username ?? "";
+  const passwordFromUrl = parsedUrl?.password ?? "";
+  const preferUrlConfig = Boolean(parsedUrl);
 
   return {
     host:
+      (preferUrlConfig ? hostFromUrl : undefined) ??
       process.env.DATABASE_HOST ??
       process.env.MYSQLHOST ??
-      parsedUrl?.hostname ??
-      "",
+      hostFromUrl,
     port: Number(
-      process.env.DATABASE_PORT ??
+      (preferUrlConfig ? portFromUrl : undefined) ??
+        process.env.DATABASE_PORT ??
         process.env.MYSQLPORT ??
-        parsedUrl?.port ??
+        portFromUrl ??
         3306
     ),
     user:
+      (preferUrlConfig ? userFromUrl : undefined) ??
       process.env.DATABASE_USER ??
       process.env.MYSQLUSER ??
-      parsedUrl?.username ??
-      "",
+      userFromUrl,
     password:
+      (preferUrlConfig ? passwordFromUrl : undefined) ??
       process.env.DATABASE_PASSWORD ??
       process.env.MYSQLPASSWORD ??
-      parsedUrl?.password ??
-      "",
+      passwordFromUrl,
     database:
+      (preferUrlConfig ? databaseNameFromUrl : undefined) ??
       process.env.DATABASE_NAME ??
       process.env.MYSQLDATABASE ??
       databaseNameFromUrl,
@@ -340,7 +346,7 @@ async function ensureCategories() {
 }
 
 async function cleanupPreviousBulkData() {
-  const [testClients, testAssets, testAssignments, testInvoices] = await Promise.all([
+  const [testClients, testAssets] = await Promise.all([
     prisma.client.findMany({
       where: {
         clientCode: {
@@ -361,84 +367,79 @@ async function cleanupPreviousBulkData() {
         id: true,
       },
     }),
-    prisma.assignment.findMany({
-      where: {
-        title: {
-          startsWith: `${MARKER} `,
-        },
-      },
-      select: {
-        id: true,
-      },
-    }),
-    prisma.invoice.findMany({
-      where: {
-        invoiceNo: {
-          startsWith: "TST-INV-",
-        },
-      },
-      select: {
-        id: true,
-      },
-    }),
   ]);
 
   const clientIds = testClients.map((item) => item.id);
   const assetIds = testAssets.map((item) => item.id);
-  const assignmentIds = testAssignments.map((item) => item.id);
-  const invoiceIds = testInvoices.map((item) => item.id);
 
-  if (invoiceIds.length > 0 || assignmentIds.length > 0) {
+  if (clientIds.length > 0) {
     await prisma.invoiceAssignment.deleteMany({
       where: {
         OR: [
-          invoiceIds.length > 0 ? { invoiceId: { in: invoiceIds } } : undefined,
-          assignmentIds.length > 0 ? { assignmentId: { in: assignmentIds } } : undefined,
-        ].filter(Boolean) as Prisma.InvoiceAssignmentWhereInput[],
+          {
+            invoice: {
+              clientId: {
+                in: clientIds,
+              },
+            },
+          },
+          {
+            assignment: {
+              clientId: {
+                in: clientIds,
+              },
+            },
+          },
+        ],
       },
     });
-  }
 
-  if (assignmentIds.length > 0 || assetIds.length > 0) {
     await prisma.assignmentAsset.deleteMany({
       where: {
-        OR: [
-          assignmentIds.length > 0 ? { assignmentId: { in: assignmentIds } } : undefined,
-          assetIds.length > 0 ? { assetId: { in: assetIds } } : undefined,
-        ].filter(Boolean) as Prisma.AssignmentAssetWhereInput[],
+        assignment: {
+          clientId: {
+            in: clientIds,
+          },
+        },
       },
     });
-  }
 
-  if (assignmentIds.length > 0) {
     await prisma.revenue.deleteMany({
       where: {
-        assignmentId: {
-          in: assignmentIds,
+        assignment: {
+          clientId: {
+            in: clientIds,
+          },
+        },
+      },
+    });
+
+    await prisma.invoice.deleteMany({
+      where: {
+        clientId: {
+          in: clientIds,
         },
       },
     });
 
     await prisma.assignment.deleteMany({
       where: {
-        id: {
-          in: assignmentIds,
-        },
-      },
-    });
-  }
-
-  if (invoiceIds.length > 0) {
-    await prisma.invoice.deleteMany({
-      where: {
-        id: {
-          in: invoiceIds,
+        clientId: {
+          in: clientIds,
         },
       },
     });
   }
 
   if (assetIds.length > 0) {
+    await prisma.assignmentAsset.deleteMany({
+      where: {
+        assetId: {
+          in: assetIds,
+        },
+      },
+    });
+
     await prisma.maintenanceRecord.deleteMany({
       where: {
         assetId: {

@@ -9,30 +9,37 @@ function createPrismaClient() {
   const databaseUrl = process.env.DATABASE_URL ?? process.env.MYSQL_URL;
   const parsedUrl = databaseUrl ? new URL(databaseUrl) : null;
   const databaseNameFromUrl = parsedUrl?.pathname.replace(/^\//, "") ?? "";
+  const hostFromUrl = parsedUrl?.hostname ?? "";
+  const portFromUrl = parsedUrl?.port ?? "";
+  const userFromUrl = parsedUrl?.username ?? "";
+  const passwordFromUrl = parsedUrl?.password ?? "";
+  const preferUrlConfig = Boolean(parsedUrl);
 
   const adapter = new PrismaMariaDb({
     host:
+      (preferUrlConfig ? hostFromUrl : undefined) ??
       process.env.DATABASE_HOST ??
       process.env.MYSQLHOST ??
-      parsedUrl?.hostname ??
-      "",
+      hostFromUrl,
     port: Number(
-      process.env.DATABASE_PORT ??
+      (preferUrlConfig ? portFromUrl : undefined) ??
+        process.env.DATABASE_PORT ??
         process.env.MYSQLPORT ??
-        parsedUrl?.port ??
+        portFromUrl ??
         3306
     ),
     user:
+      (preferUrlConfig ? userFromUrl : undefined) ??
       process.env.DATABASE_USER ??
       process.env.MYSQLUSER ??
-      parsedUrl?.username ??
-      "",
+      userFromUrl,
     password:
+      (preferUrlConfig ? passwordFromUrl : undefined) ??
       process.env.DATABASE_PASSWORD ??
       process.env.MYSQLPASSWORD ??
-      parsedUrl?.password ??
-      "",
+      passwordFromUrl,
     database:
+      (preferUrlConfig ? databaseNameFromUrl : undefined) ??
       process.env.DATABASE_NAME ??
       process.env.MYSQLDATABASE ??
       databaseNameFromUrl,

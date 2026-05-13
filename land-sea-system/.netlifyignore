@@ -1,0 +1,6 @@
+.next
+node_modules
+deliverables
+.env
+.codex-dev.log
+gcm-login.txt
