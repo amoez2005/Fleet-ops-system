@@ -6,12 +6,36 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
+  const databaseUrl = process.env.DATABASE_URL ?? process.env.MYSQL_URL;
+  const parsedUrl = databaseUrl ? new URL(databaseUrl) : null;
+  const databaseNameFromUrl = parsedUrl?.pathname.replace(/^\//, "") ?? "";
+
   const adapter = new PrismaMariaDb({
-    host: process.env.DATABASE_HOST!,
-    port: Number(process.env.DATABASE_PORT!),
-    user: process.env.DATABASE_USER!,
-    password: process.env.DATABASE_PASSWORD!,
-    database: process.env.DATABASE_NAME!,
+    host:
+      process.env.DATABASE_HOST ??
+      process.env.MYSQLHOST ??
+      parsedUrl?.hostname ??
+      "",
+    port: Number(
+      process.env.DATABASE_PORT ??
+        process.env.MYSQLPORT ??
+        parsedUrl?.port ??
+        3306
+    ),
+    user:
+      process.env.DATABASE_USER ??
+      process.env.MYSQLUSER ??
+      parsedUrl?.username ??
+      "",
+    password:
+      process.env.DATABASE_PASSWORD ??
+      process.env.MYSQLPASSWORD ??
+      parsedUrl?.password ??
+      "",
+    database:
+      process.env.DATABASE_NAME ??
+      process.env.MYSQLDATABASE ??
+      databaseNameFromUrl,
     allowPublicKeyRetrieval: true,
     connectionLimit: 20,
     acquireTimeout: 30000,
