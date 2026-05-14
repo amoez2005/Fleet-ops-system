@@ -5,14 +5,20 @@ import { COOKIE_NAME, createSessionToken } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const email = String(body.email || "").trim().toLowerCase();
-    const password = String(body.password || "");
+    const contentType = req.headers.get("content-type") ?? "";
+    const isJsonRequest = contentType.includes("application/json");
+    const requestData = isJsonRequest
+      ? await req.json()
+      : Object.fromEntries(await req.formData());
+    const email = String(requestData.email || "").trim().toLowerCase();
+    const password = String(requestData.password || "");
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required." },
-        { status: 400 }
+      return createLoginErrorResponse(
+        req,
+        isJsonRequest,
+        "Email and password are required.",
+        400
       );
     }
 
@@ -21,25 +27,31 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
+      return createLoginErrorResponse(
+        req,
+        isJsonRequest,
+        "Invalid email or password.",
+        401
       );
     }
 
     if (!user.isActive) {
-      return NextResponse.json(
-        { error: "This account is inactive." },
-        { status: 403 }
+      return createLoginErrorResponse(
+        req,
+        isJsonRequest,
+        "This account is inactive.",
+        403
       );
     }
 
     const passwordOk = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordOk) {
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
+      return createLoginErrorResponse(
+        req,
+        isJsonRequest,
+        "Invalid email or password.",
+        401
       );
     }
 
@@ -50,7 +62,9 @@ export async function POST(req: Request) {
       role: user.role,
     });
 
-    const response = NextResponse.json({ success: true });
+    const response = isJsonRequest
+      ? NextResponse.json({ success: true })
+      : NextResponse.redirect(new URL("/", req.url), { status: 303 });
 
     response.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
@@ -62,9 +76,30 @@ export async function POST(req: Request) {
 
     return response;
   } catch {
-    return NextResponse.json(
-      { error: "Something went wrong during login." },
-      { status: 500 }
+    return createLoginErrorResponse(
+      req,
+      (req.headers.get("content-type") ?? "").includes("application/json"),
+      "Something went wrong during login.",
+      500
     );
   }
+}
+
+function createLoginErrorResponse(
+  req: Request,
+  isJsonRequest: boolean,
+  error: string,
+  status: number
+) {
+  if (isJsonRequest) {
+    return NextResponse.json(
+      { error },
+      { status }
+    );
+  }
+
+  const loginUrl = new URL("/login", req.url);
+  loginUrl.searchParams.set("error", error);
+
+  return NextResponse.redirect(loginUrl, { status: 303 });
 }

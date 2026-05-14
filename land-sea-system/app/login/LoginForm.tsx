@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import {
   errorStyle,
   inputStyle,
@@ -8,45 +5,15 @@ import {
   primaryButtonStyle,
 } from "@/lib/ui";
 
-export default function LoginForm() {
-  const [email, setEmail] = useState("admin@landsea.local");
-  const [password, setPassword] = useState("Admin12345!");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-
-    try {
-      setLoading(true);
-
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Login failed.");
-        return;
-      }
-
-      window.location.href = "/";
-    } catch {
-      setError("Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+export default function LoginForm({
+  error,
+}: {
+  error?: string;
+}) {
   return (
     <form
-      onSubmit={handleSubmit}
+      action="/api/auth/login"
+      method="post"
       style={{
         width: "100%",
         maxWidth: "420px",
@@ -89,22 +56,28 @@ export default function LoginForm() {
       </p>
 
       <div style={{ marginBottom: "16px" }}>
-        <label style={{ display: "block", marginBottom: "8px" }}>Email</label>
+        <label htmlFor="email" style={{ display: "block", marginBottom: "8px" }}>
+          Email
+        </label>
         <input
+          id="email"
+          name="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          defaultValue="admin@landsea.local"
           required
           style={inputStyle}
         />
       </div>
 
       <div style={{ marginBottom: "16px" }}>
-        <label style={{ display: "block", marginBottom: "8px" }}>Password</label>
+        <label htmlFor="password" style={{ display: "block", marginBottom: "8px" }}>
+          Password
+        </label>
         <input
+          id="password"
+          name="password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          defaultValue="Admin12345!"
           required
           style={inputStyle}
         />
@@ -114,10 +87,9 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        disabled={loading}
         style={primaryButtonStyle}
       >
-        {loading ? "Signing in..." : "Sign In"}
+        Sign In
       </button>
     </form>
   );

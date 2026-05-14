@@ -5,12 +5,21 @@ import { palette } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    error?: string;
+  }>;
+}) {
   const session = await getSession();
 
   if (session) {
     redirect("/");
   }
+
+  const resolvedSearchParams = await searchParams;
+  const error = resolvedSearchParams?.error;
 
   return (
     <main
@@ -26,7 +35,7 @@ export default async function LoginPage() {
         fontFamily: 'var(--font-geist-sans), "Segoe UI", sans-serif',
       }}
     >
-      <LoginForm />
+      <LoginForm error={error} />
     </main>
   );
 }
