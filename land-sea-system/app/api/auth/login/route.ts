@@ -64,7 +64,7 @@ export async function POST(req: Request) {
 
     const response = isJsonRequest
       ? NextResponse.json({ success: true })
-      : NextResponse.redirect(new URL("/", req.url), { status: 303 });
+      : NextResponse.redirect(new URL("/", getPublicBaseUrl(req)), { status: 303 });
 
     response.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
@@ -98,8 +98,18 @@ function createLoginErrorResponse(
     );
   }
 
-  const loginUrl = new URL("/login", req.url);
+  const loginUrl = new URL("/login", getPublicBaseUrl(req));
   loginUrl.searchParams.set("error", error);
 
   return NextResponse.redirect(loginUrl, { status: 303 });
+}
+
+function getPublicBaseUrl(req: Request) {
+  const requestUrl = new URL(req.url);
+  const forwardedHost = req.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const forwardedProto = req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const host = forwardedHost || req.headers.get("host") || requestUrl.host;
+  const protocol = forwardedProto || requestUrl.protocol.replace(":", "");
+
+  return new URL(`${protocol}://${host}`);
 }
