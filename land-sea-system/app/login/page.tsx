@@ -31,7 +31,7 @@ export default async function LoginPage({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "24px",
+        padding: "clamp(16px, 3vw, 24px)",
         fontFamily: 'var(--font-geist-sans), "Segoe UI", sans-serif',
       }}
     >

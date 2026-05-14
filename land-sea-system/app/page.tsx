@@ -450,13 +450,13 @@ export default async function Home() {
           max-width: 1480px;
           margin: 0 auto;
           min-height: 100vh;
-          padding: 32px;
+          padding: clamp(16px, 2.4vw, 32px);
         }
 
         .dashboard-topbar {
           display: grid;
           gap: 18px;
-          padding: 20px 24px;
+          padding: clamp(18px, 2vw, 24px);
           border: 1px solid rgba(64, 61, 57, 0.14);
           border-radius: 22px;
           background: rgba(255, 252, 242, 0.88);
@@ -480,37 +480,40 @@ export default async function Home() {
         .dashboard-hero {
           display: flex;
           justify-content: space-between;
-          align-items: flex-end;
+          align-items: flex-start;
           gap: 16px;
           flex-wrap: wrap;
         }
 
         .summary-grid {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 16px;
           margin-bottom: 16px;
         }
 
         .utility-grid {
           display: grid;
-          grid-template-columns: 1.2fr 1fr;
+          grid-template-columns: minmax(0, 1.2fr) minmax(280px, 1fr);
           gap: 16px;
           margin-bottom: 16px;
         }
 
         .insight-grid {
           display: grid;
-          grid-template-columns: 1.45fr 1fr 1fr;
+          grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr) minmax(260px, 1fr);
           gap: 16px;
           margin-bottom: 16px;
         }
 
         .activity-wrap {
           overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 6px;
         }
 
         @media (max-width: 1180px) {
+          .summary-grid,
           .utility-grid,
           .insight-grid {
             grid-template-columns: 1fr;
@@ -529,16 +532,12 @@ export default async function Home() {
         }
 
         @media (max-width: 760px) {
-          .dashboard-shell {
-            padding: 20px;
+          .dashboard-content {
+            gap: 14px;
           }
 
-          .dashboard-topbar {
-            padding: 18px;
-          }
-
-          .summary-grid {
-            grid-template-columns: 1fr;
+          .dashboard-hero {
+            gap: 14px;
           }
         }
       `}</style>
@@ -611,7 +610,7 @@ export default async function Home() {
                   borderRadius: "12px",
                   border: `1px solid ${palette.sageGreen}33`,
                   background: "rgba(255, 252, 242, 0.86)",
-                  minWidth: "170px",
+                  minWidth: "min(100%, 170px)",
                 }}
               >
                 <div style={{ fontWeight: 700 }}>{session.name}</div>
@@ -643,7 +642,7 @@ export default async function Home() {
                 <h1
                   style={{
                     margin: "0 0 8px",
-                    fontSize: "30px",
+                    fontSize: "clamp(24px, 5vw, 30px)",
                     fontWeight: 800,
                     letterSpacing: "-0.04em",
                     fontFamily: 'var(--font-geist-sans), "Segoe UI", sans-serif',
@@ -669,7 +668,8 @@ export default async function Home() {
                 <div
                   style={{
                     ...heroMetricCardStyle,
-                    minWidth: "220px",
+                    minWidth: "min(100%, 220px)",
+                    flex: "1 1 220px",
                   }}
                 >
                   <div style={heroMetricLabelStyle}>
@@ -1154,7 +1154,7 @@ export default async function Home() {
                 <table
                   style={{
                     width: "100%",
-                    minWidth: "720px",
+                    minWidth: "640px",
                     borderCollapse: "collapse",
                     border: `1px solid ${palette.sageGreen}33`,
                     borderRadius: "14px",
@@ -1234,7 +1234,7 @@ const topbarMetaCardStyle: React.CSSProperties = {
   borderRadius: "12px",
   border: `1px solid ${palette.sageGreen}33`,
   background: "rgba(255, 252, 242, 0.86)",
-  minWidth: "132px",
+  minWidth: "112px",
 };
 
 const topbarMetaSubtleStyle: React.CSSProperties = {

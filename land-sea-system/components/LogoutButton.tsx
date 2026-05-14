@@ -37,8 +37,8 @@ export default function LogoutButton({
       aria-label={loading ? "Logging out" : "Logout"}
       title={loading ? "Logging out" : "Logout"}
       style={{
-        width: iconOnly ? "52px" : undefined,
-        height: iconOnly ? "52px" : undefined,
+        width: iconOnly ? "48px" : undefined,
+        height: iconOnly ? "48px" : undefined,
         padding: iconOnly ? 0 : "10px 16px",
         border: `1px solid ${
           variant === "light" ? palette.carbonBlack : palette.borderStrong

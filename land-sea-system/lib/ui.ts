@@ -18,7 +18,7 @@ export const palette = {
 };
 
 export const pageStyle: CSSProperties = {
-  padding: "24px",
+  padding: "clamp(16px, 2vw, 24px)",
   fontFamily: 'var(--font-geist-sans), "Segoe UI", sans-serif',
   color: palette.charcoalBrown,
   background: "var(--page-wash)",
@@ -32,15 +32,15 @@ export const pageHeaderStyle: CSSProperties = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "flex-start",
-  gap: "16px",
+  gap: "clamp(12px, 2vw, 16px)",
   flexWrap: "wrap",
-  marginBottom: "28px",
+  marginBottom: "clamp(20px, 3vw, 28px)",
 };
 
 export const panelStyle: CSSProperties = {
   border: `1px solid ${palette.border}`,
-  borderRadius: "22px",
-  padding: "24px",
+  borderRadius: "clamp(18px, 2vw, 22px)",
+  padding: "clamp(18px, 2.2vw, 24px)",
   background: palette.softSurface,
   boxShadow: `0 18px 44px ${palette.shadow}`,
   backdropFilter: "blur(16px)",
@@ -48,8 +48,8 @@ export const panelStyle: CSSProperties = {
 
 export const pageTitleStyle: CSSProperties = {
   margin: 0,
-  fontSize: "clamp(34px, 4vw, 48px)",
-  lineHeight: 0.98,
+  fontSize: "clamp(30px, 5vw, 48px)",
+  lineHeight: 1,
   letterSpacing: "-0.065em",
   fontWeight: 900,
   color: palette.spicyPaprika,
@@ -58,8 +58,8 @@ export const pageTitleStyle: CSSProperties = {
 
 export const sectionTitleStyle: CSSProperties = {
   margin: "0 0 18px",
-  fontSize: "24px",
-  lineHeight: 1.08,
+  fontSize: "clamp(20px, 3vw, 24px)",
+  lineHeight: 1.12,
   letterSpacing: "-0.045em",
   fontWeight: 800,
   color: palette.carbonBlack,
@@ -77,11 +77,13 @@ export const navButtonStyle: CSSProperties = {
 
 export const inputStyle: CSSProperties = {
   width: "100%",
-  padding: "12px 14px",
+  padding: "clamp(12px, 1.6vw, 14px) clamp(13px, 1.8vw, 16px)",
   borderRadius: "14px",
   border: `1px solid ${palette.border}`,
   background: palette.softSurfaceStrong,
   color: palette.carbonBlack,
+  fontSize: "16px",
+  lineHeight: 1.4,
   outline: "none",
   boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.6)",
 };
@@ -93,6 +95,7 @@ export const optionStyle: CSSProperties = {
 
 export const primaryButtonStyle: CSSProperties = {
   width: "100%",
+  minHeight: "48px",
   padding: "12px 16px",
   borderRadius: "999px",
   border: `1px solid ${palette.carbonBlack}`,
@@ -100,11 +103,13 @@ export const primaryButtonStyle: CSSProperties = {
   color: palette.floralWhite,
   cursor: "pointer",
   fontWeight: 700,
+  fontSize: "15px",
   boxShadow: `0 12px 24px ${palette.shadow}`,
 };
 
 export const secondaryButtonStyle: CSSProperties = {
   width: "100%",
+  minHeight: "48px",
   padding: "12px 16px",
   borderRadius: "999px",
   border: `1px solid ${palette.borderStrong}`,
@@ -112,6 +117,7 @@ export const secondaryButtonStyle: CSSProperties = {
   color: palette.carbonBlack,
   cursor: "pointer",
   fontWeight: 700,
+  fontSize: "15px",
 };
 
 export const miniButtonStyle: CSSProperties = {
@@ -119,7 +125,7 @@ export const miniButtonStyle: CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   padding: "8px 12px",
-  minWidth: "88px",
+  minWidth: "80px",
   borderRadius: "999px",
   border: `1px solid ${palette.borderStrong}`,
   background: palette.softSurfaceStrong,
@@ -135,7 +141,7 @@ export const dangerButtonStyle: CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   padding: "8px 12px",
-  minWidth: "88px",
+  minWidth: "80px",
   borderRadius: "999px",
   border: `1px solid ${palette.accentBorder}`,
   background: palette.spicyPaprika,
@@ -166,7 +172,7 @@ export const readOnlyBoxStyle: CSSProperties = {
 
 export const tableStyle: CSSProperties = {
   width: "max-content",
-  minWidth: "max(100%, 1080px)",
+  minWidth: "max(100%, 760px)",
   borderCollapse: "collapse",
   border: `1px solid ${palette.border}`,
   background: "rgba(255, 252, 242, 0.72)",
@@ -174,6 +180,8 @@ export const tableStyle: CSSProperties = {
 };
 
 export const tableContainerStyle: CSSProperties = {
+  width: "100%",
+  maxWidth: "100%",
   overflowX: "auto",
   overflowY: "auto",
   paddingBottom: "8px",
@@ -190,7 +198,7 @@ export const thStyle: CSSProperties = {
   position: "sticky",
   top: 0,
   zIndex: 2,
-  padding: "12px",
+  padding: "clamp(10px, 1.4vw, 12px)",
   border: `1px solid ${palette.border}`,
   textAlign: "left",
   color: palette.mutedText,
@@ -205,7 +213,7 @@ export const thStyle: CSSProperties = {
 };
 
 export const tdStyle: CSSProperties = {
-  padding: "12px",
+  padding: "clamp(10px, 1.4vw, 12px)",
   border: `1px solid ${palette.border}`,
   verticalAlign: "top",
   color: palette.charcoalBrown,
@@ -284,7 +292,7 @@ export function getStatusBadgeStyle(value: string): CSSProperties {
       alignItems: "center",
       justifyContent: "center",
       padding: "6px 12px",
-      minWidth: "96px",
+      minWidth: "84px",
       borderRadius: "999px",
       background: palette.carbonBlack,
       color: palette.floralWhite,
@@ -306,7 +314,7 @@ export function getStatusBadgeStyle(value: string): CSSProperties {
       alignItems: "center",
       justifyContent: "center",
       padding: "6px 12px",
-      minWidth: "96px",
+      minWidth: "84px",
       borderRadius: "999px",
       background: palette.spicyPaprika,
       color: palette.floralWhite,
@@ -322,7 +330,7 @@ export function getStatusBadgeStyle(value: string): CSSProperties {
     alignItems: "center",
     justifyContent: "center",
     padding: "6px 12px",
-    minWidth: "96px",
+    minWidth: "84px",
     borderRadius: "999px",
     border: `1px solid ${palette.borderStrong}`,
     background: palette.softSurfaceAlt,

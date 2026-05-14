@@ -128,9 +128,9 @@ export default function AppShell({ children, session }: AppShellProps) {
 
         .landsea-shell-sidebar {
           position: fixed;
-          top: 16px;
-          left: 16px;
-          bottom: 16px;
+          top: clamp(12px, 2vw, 16px);
+          left: clamp(12px, 2vw, 16px);
+          bottom: clamp(12px, 2vw, 16px);
           width: var(--sidebar-expanded);
           border: 1px solid rgba(255, 252, 242, 0.08);
           border-radius: 32px;
@@ -154,8 +154,8 @@ export default function AppShell({ children, session }: AppShellProps) {
         .landsea-shell-main {
           min-width: 0;
           min-height: 100vh;
-          padding-left: calc(var(--sidebar-collapsed) + 8px);
-          padding-right: 8px;
+          padding-left: calc(var(--sidebar-collapsed) + clamp(8px, 1vw, 16px));
+          padding-right: clamp(8px, 1vw, 16px);
           background: var(--page-wash);
           overflow-x: clip;
         }
@@ -228,8 +228,8 @@ export default function AppShell({ children, session }: AppShellProps) {
 
         .landsea-shell-mobile-toggle {
           position: fixed;
-          top: 16px;
-          left: 16px;
+          top: clamp(12px, 2vw, 16px);
+          left: clamp(12px, 2vw, 16px);
           z-index: 55;
           width: 46px;
           height: 46px;
@@ -404,7 +404,7 @@ export default function AppShell({ children, session }: AppShellProps) {
 
           .landsea-shell-sidebar {
             transform: translateX(calc(-100% - 24px));
-            width: min(82vw, 300px);
+            width: min(86vw, 320px);
           }
 
           .landsea-shell-frame.is-mobile-open .landsea-shell-sidebar {
@@ -418,7 +418,7 @@ export default function AppShell({ children, session }: AppShellProps) {
 
           .landsea-shell-main {
             padding-left: 0;
-            padding-top: 52px;
+            padding-top: 56px;
             padding-right: 0;
           }
 
@@ -445,6 +445,18 @@ export default function AppShell({ children, session }: AppShellProps) {
             max-width: none;
             height: auto;
             pointer-events: auto;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .landsea-shell-sidebar {
+            border-radius: 28px;
+            padding: 16px 12px;
+          }
+
+          .landsea-shell-link {
+            height: 52px;
+            padding: 0 14px;
           }
         }
       `}</style>

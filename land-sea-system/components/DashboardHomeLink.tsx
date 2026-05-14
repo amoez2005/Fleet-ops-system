@@ -9,8 +9,8 @@ export default function DashboardHomeLink() {
       aria-label="Go to dashboard"
       title="Go to dashboard"
       style={{
-        width: "52px",
-        height: "52px",
+        width: "48px",
+        height: "48px",
         borderRadius: "999px",
         border: `1px solid ${palette.borderStrong}`,
         background: palette.softSurfaceStrong,

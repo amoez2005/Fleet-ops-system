@@ -65,13 +65,13 @@ export default function EditorJumpButton({
       title={label}
       style={{
         position: "fixed",
-        right: "24px",
-        bottom: "24px",
+        right: "clamp(12px, 3vw, 24px)",
+        bottom: "clamp(12px, 3vw, 24px)",
         zIndex: 45,
         display: "inline-flex",
         alignItems: "center",
         gap: "10px",
-        padding: "12px 16px",
+        padding: "11px 14px",
         borderRadius: "999px",
         border: `1px solid ${palette.accentBorder}`,
         background: palette.spicyPaprika,

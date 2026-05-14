@@ -18,8 +18,8 @@ export default function LoginForm({
         width: "100%",
         maxWidth: "420px",
         border: `1px solid ${palette.border}`,
-        borderRadius: "28px",
-        padding: "32px",
+        borderRadius: "clamp(22px, 4vw, 28px)",
+        padding: "clamp(22px, 5vw, 32px)",
         background: "rgba(255, 252, 242, 0.9)",
         boxShadow: "0 24px 60px rgba(37, 36, 34, 0.10)",
         backdropFilter: "blur(16px)",
@@ -45,7 +45,7 @@ export default function LoginForm({
         style={{
           marginTop: 0,
           marginBottom: "10px",
-          fontSize: "38px",
+          fontSize: "clamp(32px, 7vw, 38px)",
           letterSpacing: "-0.05em",
         }}
       >
