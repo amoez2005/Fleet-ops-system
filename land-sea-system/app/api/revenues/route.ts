@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { parseJsonBody } from "@/lib/request";
 import { canAccessFinancials } from "@/lib/roles";
 
 const revenueInclude = {
@@ -58,7 +59,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const validation = await validateRevenueInput(body);
 
     if ("error" in validation) {
@@ -118,7 +119,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Revenue not found." }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const validation = await validateRevenueInput(body);
 
     if ("error" in validation) {

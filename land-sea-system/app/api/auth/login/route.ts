@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { COOKIE_NAME, createSessionToken } from "@/lib/auth";
+import { parseJsonBody } from "@/lib/request";
 
 export async function POST(req: Request) {
   try {
     const contentType = req.headers.get("content-type") ?? "";
     const isJsonRequest = contentType.includes("application/json");
     const requestData = isJsonRequest
-      ? await req.json()
+      ? await parseJsonBody(req)
       : Object.fromEntries(await req.formData());
     const email = String(requestData.email || "").trim().toLowerCase();
     const password = String(requestData.password || "");

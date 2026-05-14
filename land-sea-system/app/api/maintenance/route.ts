@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { parseJsonBody } from "@/lib/request";
 import { canManageOperations } from "@/lib/roles";
 
 const maintenanceInclude = {
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const validation = await validateMaintenanceInput(body);
 
     if ("error" in validation) {
@@ -139,7 +140,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const validation = await validateMaintenanceInput(body);
 
     if ("error" in validation) {

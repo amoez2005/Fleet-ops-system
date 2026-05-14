@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import DashboardHomeLink from "@/components/DashboardHomeLink";
 import EditorJumpButton from "@/components/EditorJumpButton";
+import { readApiJson } from "@/lib/client-response";
 import { focusEditorPanel } from "@/lib/editor";
 import { formatUtcDateTime } from "@/lib/format";
 import {
@@ -201,7 +202,7 @@ export default function InvoicesClient({
         return;
       }
 
-      const data = await res.json();
+      const data = await readApiJson<{ error?: string; invoiceNo?: string }>(res);
 
       if (data.invoiceNo) {
         setInvoiceNo(data.invoiceNo);
@@ -241,7 +242,7 @@ export default function InvoicesClient({
         }
       );
 
-      const data = await res.json();
+      const data = await readApiJson<{ error?: string }>(res);
 
       if (!res.ok) {
         setError(data.error || "Failed to save invoice.");
@@ -283,7 +284,7 @@ export default function InvoicesClient({
         method: "DELETE",
       });
 
-      const data = await res.json();
+      const data = await readApiJson<{ error?: string }>(res);
 
       if (!res.ok) {
         setError(data.error || "Failed to delete invoice.");

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import DashboardHomeLink from "@/components/DashboardHomeLink";
 import EditorJumpButton from "@/components/EditorJumpButton";
+import { readApiJson } from "@/lib/client-response";
 import { focusEditorPanel } from "@/lib/editor";
 import { formatUtcDateTime } from "@/lib/format";
 import {
@@ -115,7 +116,7 @@ export default function SalariesClient({
         }
       );
 
-      const data = await res.json();
+      const data = await readApiJson<{ error?: string }>(res);
 
       if (!res.ok) {
         setError(data.error || "Failed to save salary record.");
@@ -159,7 +160,7 @@ export default function SalariesClient({
         method: "DELETE",
       });
 
-      const data = await res.json();
+      const data = await readApiJson<{ error?: string }>(res);
 
       if (!res.ok) {
         setError(data.error || "Failed to delete salary record.");

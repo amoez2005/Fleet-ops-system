@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { AssetStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { parseJsonBody } from "@/lib/request";
 import { canManageOperations } from "@/lib/roles";
 
 const validStatuses = new Set(Object.values(AssetStatus));
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
+    const body = await parseJsonBody(req);
 
     const assetCode = String(body.assetCode || "").trim();
     const registrationNo = String(body.registrationNo || "").trim();
@@ -199,7 +200,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Asset not found." }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
 
     const assetCode = String(body.assetCode || "").trim();
     const registrationNo = String(body.registrationNo || "").trim();

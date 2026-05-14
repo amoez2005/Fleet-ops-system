@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { parseJsonBody } from "@/lib/request";
 import { canManageOperations } from "@/lib/roles";
 
 const forbiddenResponse = () =>
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
+    const body = await parseJsonBody(req);
 
     const name = String(body.name || "").trim();
     const description = String(body.description || "").trim();
@@ -101,7 +102,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(category, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("Failed to create category.", error);
     return NextResponse.json(
       { error: "Failed to create category." },
       { status: 500 }
@@ -157,7 +159,8 @@ export async function DELETE(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
+    console.error("Failed to delete category.", error);
     return NextResponse.json(
       { error: "Failed to delete category." },
       { status: 500 }

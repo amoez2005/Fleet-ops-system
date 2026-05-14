@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { InvoiceStatus, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { parseJsonBody } from "@/lib/request";
 import { canAccessFinancials } from "@/lib/roles";
 
 const validStatuses = new Set(Object.values(InvoiceStatus));
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const validation = await validateInvoiceInput(body);
 
     if ("error" in validation) {
@@ -136,7 +137,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Invoice not found." }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await parseJsonBody(req);
     const validation = await validateInvoiceInput(body, id);
 
     if ("error" in validation) {
