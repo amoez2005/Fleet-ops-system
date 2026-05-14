@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "node .next/standalone/server.js",
     "lint": "eslint",
-    "seed:bulk": "tsx prisma/load-test-data.ts"
+    "seed:bulk": "tsx prisma/load-test-data.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
