@@ -20,9 +20,9 @@ function getDatabaseUrl() {
     !DATABASE_PASSWORD ||
     !DATABASE_NAME
   ) {
-    throw new Error(
-      "Missing database configuration. Set DATABASE_URL or the DATABASE_HOST, DATABASE_PORT, DATABASE_USER, DATABASE_PASSWORD, and DATABASE_NAME environment variables."
-    );
+    // Return a dummy URL for build-time operations like prisma generate,
+    // which only need the schema and do not connect to the database.
+    return "mysql://build:build@localhost:3306/placeholder";
   }
 
   return `mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`;
