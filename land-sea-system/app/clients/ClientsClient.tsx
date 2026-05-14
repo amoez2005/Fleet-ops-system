@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import DashboardHomeLink from "@/components/DashboardHomeLink";
 import EditorJumpButton from "@/components/EditorJumpButton";
-import { readApiJson } from "@/lib/client-response";
+import { readApiJson, reloadAfterMutation } from "@/lib/client-response";
 import { focusEditorPanel } from "@/lib/editor";
 import { formatUtcDateTime } from "@/lib/format";
 import {
@@ -153,7 +153,7 @@ export default function ClientsClient({
       setSuccess(
         editingId ? "Client updated successfully." : "Client created successfully."
       );
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError(
         editingId
@@ -196,7 +196,7 @@ export default function ClientsClient({
       }
 
       setSuccess("Client deleted successfully.");
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError("Something went wrong while deleting client.");
     } finally {

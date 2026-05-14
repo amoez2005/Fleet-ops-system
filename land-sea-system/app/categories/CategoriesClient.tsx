@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import DashboardHomeLink from "@/components/DashboardHomeLink";
 import EditorJumpButton from "@/components/EditorJumpButton";
-import { readApiJson } from "@/lib/client-response";
+import { readApiJson, reloadAfterMutation } from "@/lib/client-response";
 import { formatUtcDateTime } from "@/lib/format";
 import {
   errorStyle,
@@ -80,7 +80,7 @@ export default function CategoriesClient({
       setName("");
       setDescription("");
       setSuccess("Category created successfully.");
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError("Something went wrong while creating category.");
     } finally {
@@ -115,7 +115,7 @@ export default function CategoriesClient({
       }
 
       setSuccess("Category deleted successfully.");
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError("Something went wrong while deleting category.");
     } finally {

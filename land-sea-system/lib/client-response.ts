@@ -28,3 +28,11 @@ function redirectToLogin() {
     window.location.href = "/login";
   }
 }
+
+export function reloadAfterMutation(router: { refresh: () => void }) {
+  router.refresh();
+
+  if (typeof window !== "undefined") {
+    window.location.reload();
+  }
+}

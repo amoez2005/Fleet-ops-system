@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import DashboardHomeLink from "@/components/DashboardHomeLink";
 import EditorJumpButton from "@/components/EditorJumpButton";
-import { readApiJson } from "@/lib/client-response";
+import { readApiJson, reloadAfterMutation } from "@/lib/client-response";
 import { focusEditorPanel } from "@/lib/editor";
 import { formatUtcDateTime } from "@/lib/format";
 import {
@@ -129,7 +129,7 @@ export default function SalariesClient({
           ? "Salary record updated successfully."
           : "Salary record created successfully."
       );
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError(
         editingId
@@ -172,7 +172,7 @@ export default function SalariesClient({
       }
 
       setSuccess("Salary record deleted successfully.");
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError("Something went wrong while deleting salary record.");
     } finally {

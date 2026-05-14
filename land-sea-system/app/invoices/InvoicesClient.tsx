@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import DashboardHomeLink from "@/components/DashboardHomeLink";
 import EditorJumpButton from "@/components/EditorJumpButton";
-import { readApiJson } from "@/lib/client-response";
+import { readApiJson, reloadAfterMutation } from "@/lib/client-response";
 import { focusEditorPanel } from "@/lib/editor";
 import { formatUtcDateTime } from "@/lib/format";
 import {
@@ -253,7 +253,7 @@ export default function InvoicesClient({
       setSuccess(
         editingId ? "Invoice updated successfully." : "Invoice created successfully."
       );
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError(
         editingId
@@ -296,7 +296,7 @@ export default function InvoicesClient({
       }
 
       setSuccess("Invoice deleted successfully.");
-      router.refresh();
+      reloadAfterMutation(router);
     } catch {
       setError("Something went wrong while deleting invoice.");
     } finally {
